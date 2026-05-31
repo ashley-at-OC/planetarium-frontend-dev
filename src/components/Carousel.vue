@@ -5,8 +5,9 @@ import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
 const carouselConfig = { 
-  itemsToShow: 3, // 2.5 cuts off slide, do a whole number
-  wrapAround: true
+  itemsToShow: 1, // 2.5 cuts off slide, do a whole number
+  wrapAround: true,
+  autoplay:"5000"
 }
 
 // CSS Styles
