@@ -20,6 +20,12 @@ const units = [
   "unit",
 ];
 
+// CSS Style Refs
+const thStyle = ref("text-left");
+
+
+
+
 const ingredients = ref([]);
 const isAdd = ref(false);
 const isEdit = ref(false);
@@ -120,15 +126,67 @@ function closeSnackBar() {
 <template>
   <v-container>
     <div id="body">
+
+
+
+      <!-- Events -->
       <v-row align="center" class="mb-4">
         <v-col cols="10"
-          ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Ingredients
+          ><v-card-title class="pl-0 text-h4 font-weight-bold">
+            Events
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
           <v-btn v-if="user !== null" color="accent" @click="openAdd()"
-            >Add</v-btn
+            >+</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <v-table class="rounded-lg elevation-5">
+        <thead>
+          <tr>
+            <th class="text-left">Title</th>
+            <th class="text-left">Description</th>
+            <th class="text-left">Ticket Price</th>
+            <th class="text-left">Time</th>
+            <th class="text-left">Date</th>
+            <th class="text-left">Attendees</th>
+            <th class="text-left">Edit</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in ingredients" :key="item.name">
+            <td>{{ item.name }}</td>
+            <td>{{ item.unit }}</td>
+            <td>${{ item.pricePerUnit }}</td>
+            <td>${{ item.pricePerUnit }}</td>
+            <td>${{ item.pricePerUnit }}</td>
+            <td>${{ item.pricePerUnit }}</td>
+            <td>
+              <v-icon
+                size="small"
+                icon="mdi-pencil"
+                @click="openEdit(item)"
+              ></v-icon>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+
+
+
+           <!-- Accounts -->
+      <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold">
+            Accounts
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+            >+</v-btn
           >
         </v-col>
       </v-row>
@@ -157,6 +215,51 @@ function closeSnackBar() {
           </tr>
         </tbody>
       </v-table>
+
+
+       <!-- Transactions -->
+      <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold">
+            Transactions
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+            >+</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <v-table class="rounded-lg elevation-5">
+        <thead>
+          <tr>
+            <th class="text-left">Name</th>
+            <th class="text-left">Unit</th>
+            <th class="text-left">Price Per Unit</th>
+            <th class="text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in ingredients" :key="item.name">
+            <td>{{ item.name }}</td>
+            <td>{{ item.unit }}</td>
+            <td>${{ item.pricePerUnit }}</td>
+            <td>
+              <v-icon
+                size="small"
+                icon="mdi-pencil"
+                @click="openEdit(item)"
+              ></v-icon>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+
+
+
+
+
 
       <v-dialog persistent :model-value="isAdd || isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
@@ -221,3 +324,11 @@ function closeSnackBar() {
     </div>
   </v-container>
 </template>
+
+<style>
+
+.text-left{
+  color:red; 
+}
+
+</style>
