@@ -1,30 +1,42 @@
 <!-- Reference: https://vue3-carousel.ismail9k.com/getting-started.html --> 
 <script setup>
+import { ref } from 'vue';
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 
 const carouselConfig = { 
-  itemsToShow: 3, // 2.5 cuts off slide
+  itemsToShow: 3, // 2.5 cuts off slide, do a whole number
   wrapAround: true
 }
 
+// CSS Styles
+const slide = ref('img')
+const slideInfo = ref('infoDiv')
+const CarouselPagination = ref('pagnation')
+const CarouselStyle = ref("carousel")
 const events = 
 [
-  { id: 1, src: "/oc_logo.png" },
-  { id: 2, src: "/oc_logo.png" },
-  { id: 3, src: "/oc_logo.png" }
+  { id: 1, src: "/oc_logo.png", title: "Event1", description: "Description1", time: "12:00PM - 1:00PM", date: "May 2nd" },
+  { id: 2, src: "/oc_logo.png", title: "Event2", description: "Description2", time: "3:00PM - 4:00PM", date: "May 2nd"  },
+  { id: 3, src: "/oc_logo.png", title: "Event3", description: "Description3", time: "5:00PM - 6:00PM", date: "May 2nd"  }
 ]
 </script>
 
 <template>
-  <Carousel v-bind="carouselConfig">
-    <Slide v-for="event in events" :key="event.id">
-     <img :src="event.src" class="carousel__item" />
+  <Carousel id="carousel" v-bind="carouselConfig">
+    <Slide v-for="event in events" :key="event.id"> <!-- iterate through events list -->
+     <img :src="event.src" class="carousel__item" /> 
+      <div class="infoDiv">
+      <h3> {{ event.title }}</h3>
+      <p> {{ event.description }}</p>
+      <p> {{ event.time }}</p>
+      <p> {{ event.date }}</p>
+      </div>
     </Slide>
 
     <template #addons> <!-- add ons for extra stuff -->
       <Navigation /> <!-- left and right arrows -->
-      <Pagination /> <!-- little segments at the bottom indicating index -->
+      <Pagination class="pagination" /> <!-- little segments at the bottom indicating index -->
     </template>
   </Carousel>
 </template>
@@ -32,6 +44,22 @@ const events =
 
 <style>
 
+img{
+  width:40%;
+  height:100%;
+}
+
+.infoDiv{
+  margin:4%;
+}
+
+.pagination{
+  margin: 0% 0% -4% 0%;
+}
+
+#carousel{
+  margin: 5% 0% 10% 0%;
+}
 
 
 
