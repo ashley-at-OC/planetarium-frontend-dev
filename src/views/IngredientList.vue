@@ -89,12 +89,29 @@ async function updateRecipe() {
   await getRecipes();
 }
 
-function openAdd() {
+
+function openAddEvent() {
   newRecipe.value.name = undefined;
   newRecipe.value.unit = undefined;
   newRecipe.value.pricePerUnit = undefined;
   isAdd.value = true;
 }
+
+function openAddAccount() {
+  newRecipe.value.name = undefined;
+  newRecipe.value.unit = undefined;
+  newRecipe.value.pricePerUnit = undefined;
+  isAdd.value = true;
+}
+
+
+function openAddTransaction() {
+  newRecipe.value.name = undefined;
+  newRecipe.value.unit = undefined;
+  newRecipe.value.pricePerUnit = undefined;
+  isAdd.value = true;
+}
+
 
 function closeAdd() {
   isAdd.value = false;
@@ -128,7 +145,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null" color="accent" @click="openAddEvent()"
             >+</v-btn
           >
         </v-col>
@@ -144,12 +161,13 @@ function closeSnackBar() {
             <th class="text-left">Time</th>
             <th class="text-left">Date</th>
             <th class="text-left">Attendees</th>
-            <th class="text-left">Edit</th>
+            <th class="text-left">Actions</th>
 
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in recipes" :key="item.title">
+            <td>{{ item.eventID }}</td>
             <td>{{ item.title }}</td>
             <td>{{ item.description }}</td>
             <td>${{ item.ticketPrice }}</td>
@@ -160,6 +178,11 @@ function closeSnackBar() {
               <v-icon
                 size="small"
                 icon="mdi-pencil"
+                @click="openEdit(item)"
+              ></v-icon>
+                <v-icon
+                size="small"
+                icon="mdi-delete"
                 @click="openEdit(item)"
               ></v-icon>
             </td>
@@ -177,7 +200,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null" color="accent" @click="openAddAccount()"
             >+</v-btn
           >
         </v-col>
@@ -192,18 +215,27 @@ function closeSnackBar() {
             <th class="text-left">Email</th>
             <th class="text-left">Password (Encrypted)</th>
             <th class="text-left">Date Created</th>
+            <th class="text-left">Actions</th>
         
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in recipes" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.unit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
+            <td>{{ item.accountID }}</td>
+            <td>{{ item.firstName }}</td>
+            <td>{{ item.lastName }}</td>
+            <td>{{ item.email }}</td>
+            <td>{{ item.password }}</td>
+            <td>{{ item.dateCreated }}</td>
             <td>
               <v-icon
                 size="small"
                 icon="mdi-pencil"
+                @click="openEdit(item)"
+              ></v-icon>
+               <v-icon
+                size="small"
+                icon="mdi-delete"
                 @click="openEdit(item)"
               ></v-icon>
             </td>
@@ -220,7 +252,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null" color="accent" @click="openAddTransaction()"
             >+</v-btn
           >
         </v-col>
@@ -232,20 +264,31 @@ function closeSnackBar() {
             <th class="text-left">TransactionID</th>
             <th class="text-left">AccountID</th>
             <th class="text-left">EventID</th>
+
             <th class="text-left">Refunded?</th>
             <th class="text-left">Time Purchased</th>
             <th class="text-left">Date Purchased</th>
+            <th class="text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in recipes" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.unit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
+            <td>{{ item.transactionID }}</td>
+            <td>{{ item.accountID }}</td>
+            <td>{{ item.accountID }}</td>
+            <td>{{ item.isRefunded }}</td>
+            <td>{{ item.timePurchased }}</td>
+            <td>{{ item.datePurchased }}</td>
             <td>
               <v-icon
                 size="small"
                 icon="mdi-pencil"
+                @click="openEdit(item)"
+              >
+            </v-icon>
+                   <v-icon
+                size="small"
+                icon="mdi-delete"
                 @click="openEdit(item)"
               ></v-icon>
             </td>
@@ -254,10 +297,7 @@ function closeSnackBar() {
       </v-table>
 
 
-
-
-
-
+      <!-- add event button (+) -->
       <v-dialog persistent :model-value="isAdd || isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
           <v-card-item>
@@ -271,13 +311,12 @@ function closeSnackBar() {
               label="Title"
               required
             ></v-text-field>
-            <v-select
+            <v-text-field
               v-model="newRecipe.description"
-              :items="units"
               label="Description"
               required
             >
-            </v-select>
+            </v-text-field>
             <v-text-field
               v-model="newRecipe.ticketPrice"
               label="Ticket Price"
@@ -292,13 +331,13 @@ function closeSnackBar() {
             ></v-text-field>
             <v-text-field
               v-model="newRecipe.date"
-              label="Ticket Price (WIP change to Datetime)"
+              label="Date (WIP change to Datetime)"
               type="number"
               required
             ></v-text-field>
               <v-text-field
               v-model="newRecipe.date"
-              label="Attendee"
+              label="Attendee Count"
               type="number"
               required
             ></v-text-field>
@@ -324,6 +363,149 @@ function closeSnackBar() {
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+
+
+
+
+
+
+
+       <!-- add account button (+) -->
+      <v-dialog persistent :model-value="isAdd || isEdit" width="800">
+        <v-card class="rounded-lg elevation-5">
+          <v-card-item>
+            <v-card-title class="headline mb-2"
+              >{{ isAdd ? "Add Account" : isEdit ? "Edit Event" : "" }}
+            </v-card-title>
+          </v-card-item>
+          <v-card-text>
+            <v-text-field
+              v-model="newRecipe.title"
+              label="Title"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.description"
+              label="Description"
+              required
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="newRecipe.ticketPrice"
+              label="Ticket Price"
+              type="number"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.time"
+              label="Time (WIP change to Datetime)"
+              type="number" 
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.date"
+              label="Date (WIP change to Datetime)"
+              type="number"
+              required
+            ></v-text-field>
+              <v-text-field
+              v-model="newRecipe.date"
+              label="Attendee Count"
+              type="number"
+              required
+            ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              variant="flat"
+              color="secondary"
+              @click="isAdd ? closeAdd() : isEdit ? closeEdit() : false"
+              >Close</v-btn
+            >
+            <v-btn
+              variant="flat"
+              color="primary"
+              @click="
+                isAdd ? addRecipe() : isEdit ? updateRecipe() : false
+              "
+              >{{
+                isAdd ? "Add recipe" : isEdit ? "Update recipe" : ""
+              }}</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+       <!-- add transaction button (+) -->
+      <v-dialog persistent :model-value="isAdd || isEdit" width="800">
+        <v-card class="rounded-lg elevation-5">
+          <v-card-item>
+            <v-card-title class="headline mb-2"
+              >{{ isAdd ? "Add Transaction" : isEdit ? "Edit Event" : "" }}
+            </v-card-title>
+          </v-card-item>
+          <v-card-text>
+            <v-text-field
+              v-model="newRecipe.title"
+              label="Title"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.description"
+              label="Description"
+              required
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="newRecipe.ticketPrice"
+              label="Ticket Price"
+              type="number"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.time"
+              label="Time (WIP change to Datetime)"
+              type="number" 
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.date"
+              label="Date (WIP change to Datetime)"
+              type="number"
+              required
+            ></v-text-field>
+              <v-text-field
+              v-model="newRecipe.date"
+              label="Attendee Count"
+              type="number"
+              required
+            ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              variant="flat"
+              color="secondary"
+              @click="isAdd ? closeAdd() : isEdit ? closeEdit() : false"
+              >Close</v-btn
+            >
+            <v-btn
+              variant="flat"
+              color="primary"
+              @click="
+                isAdd ? addRecipe() : isEdit ? updateRecipe() : false
+              "
+              >{{
+                isAdd ? "Add recipe" : isEdit ? "Update recipe" : ""
+              }}</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+
       <v-snackbar v-model="snackbar.value" rounded="pill">
         {{ snackbar.text }}
 
