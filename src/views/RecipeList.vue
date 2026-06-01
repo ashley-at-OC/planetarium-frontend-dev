@@ -3,6 +3,7 @@ import { onMounted } from "vue";
 import { ref } from "vue";
 import RecipeCard from "../components/RecipeCardComponent.vue";
 import RecipeServices from "../services/RecipeServices.js";
+import Carousel from "../components/Carousel.vue";
 
 const recipes = ref([]);
 const isAdd = ref(false);
@@ -86,6 +87,8 @@ function closeSnackBar() {
 <template>
   <v-container>
     <div id="body">
+
+      <Carousel> CAROUSEL </Carousel>
       <v-row align="center" class="mb-4">
         <v-col cols="10"
           ><v-card-title class="pl-0 text-h4 font-weight-bold"
