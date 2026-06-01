@@ -28,6 +28,9 @@ const newRecipe = ref({ // no need for a Recipe model, I guess?
   attendeesCount: 0,
 });
 
+const accountTypes =
+[ "attendee", "admin" ]
+
 
 onMounted(async () => { // what's being displayed
   await getRecipes();
@@ -146,13 +149,13 @@ function closeSnackBar() {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in recipes" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.unit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
+          <tr v-for="item in recipes" :key="item.title">
+            <td>{{ item.title }}</td>
+            <td>{{ item.description }}</td>
+            <td>${{ item.ticketPrice }}</td>
+            <td>{{ item.time }}</td>
+            <td>{{ item.date }}</td>
+            <td>{{ item.attendeesCount }}</td>
             <td>
               <v-icon
                 size="small"
@@ -259,26 +262,45 @@ function closeSnackBar() {
         <v-card class="rounded-lg elevation-5">
           <v-card-item>
             <v-card-title class="headline mb-2"
-              >{{ isAdd ? "Add Ingredient" : isEdit ? "Edit Ingredient" : "" }}
+              >{{ isAdd ? "Add Event" : isEdit ? "Edit Event" : "" }}
             </v-card-title>
           </v-card-item>
           <v-card-text>
             <v-text-field
-              v-model="newRecipe.name"
-              label="Name"
+              v-model="newRecipe.title"
+              label="Title"
               required
             ></v-text-field>
             <v-select
-              v-model="newRecipe.unit"
+              v-model="newRecipe.description"
               :items="units"
-              label="Unit"
+              label="Description"
               required
             >
             </v-select>
             <v-text-field
-              v-model="newRecipe.pricePerUnit"
-              label="Price Per Unit"
+              v-model="newRecipe.ticketPrice"
+              label="Ticket Price"
               type="number"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.time"
+              label="Time (WIP change to Datetime)"
+              type="number" 
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newRecipe.date"
+              label="Ticket Price (WIP change to Datetime)"
+              type="number"
+              required
+            ></v-text-field>
+              <v-text-field
+              v-model="newRecipe.date"
+              label="Attendee"
+              type="number"
+              required
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
