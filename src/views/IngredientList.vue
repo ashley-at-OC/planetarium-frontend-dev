@@ -1,56 +1,43 @@
 <script setup>
 import { onMounted } from "vue";
 import { ref } from "vue";
-import IngredientServices from "../services/IngredientServices.js";
-
-const units = [
-  "cup",
-  "gallon",
-  "gram",
-  "kilogram",
-  "liter",
-  "milliliter",
-  "ounce",
-  "pint",
-  "piece",
-  "pound",
-  "quart",
-  "tablespoon",
-  "teaspoon",
-  "unit",
-];
+import RecipeCard from "../components/RecipeCardComponent.vue";
+import RecipeServices from "../services/RecipeServices.js";
 
 // CSS Style Refs
 const thStyle = ref("text-left");
 
+// Refs
 
-
-
-const ingredients = ref([]);
-const isAdd = ref(false);
-const isEdit = ref(false);
-const user = ref(null);
-const snackbar = ref({
+const recipes = ref([]); // list of recipes
+const accounts = ref([]); // list of recipes
+const transaction = ref([]); // list of recipes
+const isAdd = ref(false); // creating a recipe but not yet saving it, isAdd = true when you finally save. I think?
+const user = ref(null); 
+const snackbar = ref({ // the little status bar popup
   value: false,
   color: "",
   text: "",
 });
-const newIngredient = ref({
-  id: undefined,
-  name: undefined,
-  unit: undefined,
-  pricePerUnit: undefined,
+const newRecipe = ref({ // no need for a Recipe model, I guess?
+  name: "",
+  description: "",
+  ticketPrice: 0,
+  time: "30", // change to DateTime later
+  date: "30", // chang to DateTime later
+  attendeesCount: 0,
 });
 
-onMounted(async () => {
-  await getIngredients();
-  user.value = JSON.parse(localStorage.getItem("user"));
+
+onMounted(async () => { // what's being displayed
+  await getRecipes();
+  user.value = JSON.parse(localStorage.getItem("user"));  // replace user with something else. All events should be accessible and visible to everyone
 });
 
-async function getIngredients() {
-  await IngredientServices.getIngredients()
+async function getRecipes() { // probably not working right now because DB is set up to get Recipe based on userID
+  await RecipeServices.getRecipes()
     .then((response) => {
-      ingredients.value = response.data;
+      recipes.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -60,14 +47,14 @@ async function getIngredients() {
     });
 }
 
-async function addIngredient() {
+async function addRecipe() {
   isAdd.value = false;
-  delete newIngredient.id;
-  await IngredientServices.addIngredient(newIngredient.value)
+  // newRecipe.value.userId = user.value.id;  // Events won't be associated with a userID
+  await RecipeServices.addRecipe(newRecipe.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.value.name} added successfully!`;
+      snackbar.value.text = `${newRecipe.value.name} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -75,16 +62,20 @@ async function addIngredient() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getIngredients();
+  await getRecipes();
 }
 
-async function updateIngredient() {
+
+
+
+
+async function updateRecipe() {
   isEdit.value = false;
-  await IngredientServices.updateIngredient(newIngredient.value)
+  await RecipeServices.updateRecipe(newRecipe.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.name} updated successfully!`;
+      snackbar.value.text = `${newRecipe.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -92,13 +83,13 @@ async function updateIngredient() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getIngredients();
+  await getRecipes();
 }
 
 function openAdd() {
-  newIngredient.value.name = undefined;
-  newIngredient.value.unit = undefined;
-  newIngredient.value.pricePerUnit = undefined;
+  newRecipe.value.name = undefined;
+  newRecipe.value.unit = undefined;
+  newRecipe.value.pricePerUnit = undefined;
   isAdd.value = true;
 }
 
@@ -107,10 +98,10 @@ function closeAdd() {
 }
 
 function openEdit(item) {
-  newIngredient.value.id = item.id;
-  newIngredient.value.name = item.name;
-  newIngredient.value.unit = item.unit;
-  newIngredient.value.pricePerUnit = item.pricePerUnit;
+  newRecipe.value.id = item.id;
+  newRecipe.value.name = item.name;
+  newRecipe.value.unit = item.unit;
+  newRecipe.value.pricePerUnit = item.pricePerUnit;
   isEdit.value = true;
 }
 
@@ -126,9 +117,6 @@ function closeSnackBar() {
 <template>
   <v-container>
     <div id="body">
-
-
-
       <!-- Events -->
       <v-row align="center" class="mb-4">
         <v-col cols="10"
@@ -146,6 +134,7 @@ function closeSnackBar() {
       <v-table class="rounded-lg elevation-5">
         <thead>
           <tr>
+            <th class="text-left">EventID</th>
             <th class="text-left">Title</th>
             <th class="text-left">Description</th>
             <th class="text-left">Ticket Price</th>
@@ -157,7 +146,7 @@ function closeSnackBar() {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in ingredients" :key="item.name">
+          <tr v-for="item in recipes" :key="item.name">
             <td>{{ item.name }}</td>
             <td>{{ item.unit }}</td>
             <td>${{ item.pricePerUnit }}</td>
@@ -177,7 +166,7 @@ function closeSnackBar() {
 
 
 
-           <!-- Accounts -->
+      <!-- Accounts -->
       <v-row align="center" class="mb-4">
         <v-col cols="10"
           ><v-card-title class="pl-0 text-h4 font-weight-bold">
@@ -194,14 +183,17 @@ function closeSnackBar() {
       <v-table class="rounded-lg elevation-5">
         <thead>
           <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Unit</th>
-            <th class="text-left">Price Per Unit</th>
-            <th class="text-left">Actions</th>
+            <th class="text-left">AccountID</th>
+            <th class="text-left">First Name</th>
+            <th class="text-left">Last Name</th>
+            <th class="text-left">Email</th>
+            <th class="text-left">Password (Encrypted)</th>
+            <th class="text-left">Date Created</th>
+        
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in ingredients" :key="item.name">
+          <tr v-for="item in recipes" :key="item.name">
             <td>{{ item.name }}</td>
             <td>{{ item.unit }}</td>
             <td>${{ item.pricePerUnit }}</td>
@@ -234,14 +226,16 @@ function closeSnackBar() {
       <v-table class="rounded-lg elevation-5">
         <thead>
           <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Unit</th>
-            <th class="text-left">Price Per Unit</th>
-            <th class="text-left">Actions</th>
+            <th class="text-left">TransactionID</th>
+            <th class="text-left">AccountID</th>
+            <th class="text-left">EventID</th>
+            <th class="text-left">Refunded?</th>
+            <th class="text-left">Time Purchased</th>
+            <th class="text-left">Date Purchased</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in ingredients" :key="item.name">
+          <tr v-for="item in recipes" :key="item.name">
             <td>{{ item.name }}</td>
             <td>{{ item.unit }}</td>
             <td>${{ item.pricePerUnit }}</td>
@@ -270,19 +264,19 @@ function closeSnackBar() {
           </v-card-item>
           <v-card-text>
             <v-text-field
-              v-model="newIngredient.name"
+              v-model="newRecipe.name"
               label="Name"
               required
             ></v-text-field>
             <v-select
-              v-model="newIngredient.unit"
+              v-model="newRecipe.unit"
               :items="units"
               label="Unit"
               required
             >
             </v-select>
             <v-text-field
-              v-model="newIngredient.pricePerUnit"
+              v-model="newRecipe.pricePerUnit"
               label="Price Per Unit"
               type="number"
             ></v-text-field>
@@ -299,10 +293,10 @@ function closeSnackBar() {
               variant="flat"
               color="primary"
               @click="
-                isAdd ? addIngredient() : isEdit ? updateIngredient() : false
+                isAdd ? addRecipe() : isEdit ? updateRecipe() : false
               "
               >{{
-                isAdd ? "Add Ingredient" : isEdit ? "Update Ingredient" : ""
+                isAdd ? "Add recipe" : isEdit ? "Update recipe" : ""
               }}</v-btn
             >
           </v-card-actions>
