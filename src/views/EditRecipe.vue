@@ -373,9 +373,9 @@ function closeSnackBar() {
                     }`
                   }}</b
                 >
-                of {{ recipeIngredient.ingredient.name }} (${{
-                  recipeIngredient.ingredient.pricePerUnit
-                }}/{{ recipeIngredient.ingredient.unit }})
+                of {{ recipeIngredient.ingredient.title }} (${{
+                  recipeIngredient.ingredient.ticketPrice
+                }}/{{ recipeIngredient.ingredient.description }})
                 <template v-slot:append>
                   <v-row>
                     <v-icon
@@ -423,7 +423,7 @@ function closeSnackBar() {
                       v-for="ingredient in step.recipeIngredient"
                       :key="ingredient.id"
                       pill
-                      >{{ ingredient.ingredient.name }}</v-chip
+                      >{{ ingredient.ingredient.title }}</v-chip
                     >
                   </td>
                   <td>
@@ -478,7 +478,7 @@ function closeSnackBar() {
                 v-model="selectedIngredient"
                 :items="ingredients"
                 item-title="name"
-                item-value="unit"
+                item-value="description"
                 label="Ingredients"
                 return-object
                 required
@@ -486,8 +486,8 @@ function closeSnackBar() {
                 <template v-slot:prepend>
                   {{
                     `${
-                      selectedIngredient && selectedIngredient.unit
-                        ? selectedIngredient.unit
+                      selectedIngredient && selectedIngredient.description
+                        ? selectedIngredient.description
                         : ""
                     }${newIngredient.quantity > 1 ? "s" : ""}`
                   }}

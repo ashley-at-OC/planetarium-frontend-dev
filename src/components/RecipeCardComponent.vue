@@ -99,14 +99,14 @@ function navigateToEdit() {
             <b
               >{{ recipeIngredient.quantity }}
               {{
-                `${recipeIngredient.ingredient.unit}${
+                `${recipeIngredient.ingredient.description}${
                   recipeIngredient.quantity > 1 ? "s" : ""
                 }`
               }}</b
             >
-            of {{ recipeIngredient.ingredient.name }} (${{
-              recipeIngredient.ingredient.pricePerUnit
-            }}/{{ recipeIngredient.ingredient.unit }})
+            of {{ recipeIngredient.ingredient.title }} (${{
+              recipeIngredient.ingredient.ticketPrice
+            }}/{{ recipeIngredient.ingredient.description }})
           </v-list-item>
         </v-list>
         <h3>Recipe Steps</h3>
@@ -128,7 +128,7 @@ function navigateToEdit() {
                   v-for="ingredient in step.recipeIngredient"
                   :key="ingredient.id"
                   pill
-                  >{{ ingredient.ingredient.name }}</v-chip
+                  >{{ ingredient.ingredient.title }}</v-chip
                 >
               </td>
             </tr>
