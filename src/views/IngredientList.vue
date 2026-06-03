@@ -75,7 +75,7 @@ async function addIngredient() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.value.name} added successfully!`;
+      snackbar.value.text = `${newIngredient.value.title} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -142,7 +142,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="addIngredient()"
+          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
             >+</v-btn
           >
         </v-col>
@@ -186,6 +186,7 @@ function closeSnackBar() {
       </v-table>
 
       <!-- used for both Add and Edit actions -->
+  
       <v-dialog persistent :model-value="isAdd || isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
           <v-card-item>
@@ -196,19 +197,31 @@ function closeSnackBar() {
           <v-card-text>
             <v-text-field
               v-model="newIngredient.title"
-              label="Name"
+              label="Title"
               required
             ></v-text-field>
             <v-select
               v-model="newIngredient.description"
               :items="units"
-              label="Unit"
+              label="Description"
               required
             >
             </v-select>
             <v-text-field
               v-model="newIngredient.ticketPrice"
-              label="Price Per Unit"
+              label="Ticket Price"
+              type="number"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="newIngredient.dateTime"
+              label="Date and Time"
+              type="datetime-local"
+            ></v-text-field>
+
+            <v-text-field
+              v-model="newIngredient.attendeeCount"
+              label="Attendee Count"
               type="number"
             ></v-text-field>
           </v-card-text>
@@ -220,6 +233,7 @@ function closeSnackBar() {
               @click="isAdd ? closeAdd() : isEdit ? closeEdit() : false"
               >Close</v-btn
             >
+            
             <v-btn
               variant="flat"
               color="primary"
@@ -249,3 +263,5 @@ function closeSnackBar() {
     </div>
   </v-container>
 </template>
+
+
