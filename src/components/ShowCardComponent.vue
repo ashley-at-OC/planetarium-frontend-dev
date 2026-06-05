@@ -10,7 +10,7 @@ const showDetails = ref(false);
 
 const user = ref(null);
 
-const props = defineProps({
+const props = defineProps({ // show passed in from parent (IngredientList.vue)
   ingredient: {
     required: true,
   },
@@ -46,11 +46,11 @@ function navigateToEdit() {
           {{ ingredient.name }}
           <v-chip class="ma-2" color="primary" label>
             <v-icon start icon="mdi-account-circle-outline"></v-icon>
-            {{ ingredient.unit }} Servings
+            {{ ingredient.price }} Servings
           </v-chip>
           <v-chip class="ma-2" color="accent" label>
             <v-icon start icon="mdi-clock-outline"></v-icon>
-            {{ ingredient.pricePerUnit }} minutes
+            {{ ingredient.duration }} minutes
           </v-chip>
         </v-col>
         <v-col class="d-flex justify-end">
@@ -70,19 +70,37 @@ function navigateToEdit() {
       </v-row>
     </v-card-title>
     <v-card-text class="body-1">
-      {{ ingredient.name }}
+      {{ ingredient.description }}
     </v-card-text>
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
         <h3>Showtime</h3>
-        <v-list> <!-- fill with actual data later -->
-          <v-list-item
-            v-for="showtime in showtimes" 
-            :key="showtime.id"
-          >
-            {{ showtime.name }}
-          </v-list-item>
-        </v-list>
+        
+      <v-table>
+        <thead>
+          <tr>
+            <th class="text-left">Name</th>
+            <th class="text-left">Unit</th>
+            <th class="text-left">Price Per Unit</th>
+            <th class="text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in ingredients" :key="item.name">
+            <td>{{ item.name }}</td>
+            <td>{{ item.unit }}</td>
+            <td>${{ item.pricePerUnit }}</td>
+            <td>
+              <v-icon
+                size="small"
+                icon="mdi-pencil"
+                @click="openEdit(item)"
+              ></v-icon>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+     
       </v-card-text>
     </v-expand-transition>
   </v-card>

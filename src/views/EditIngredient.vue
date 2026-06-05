@@ -13,10 +13,11 @@ const ingredients = ref([]);
 const ingredient = ref({
   id: null,
   name: "",
-  unit: "",
-  pricePerUnit: 0,
-  description: ""
+  description: "",
+  price: 0,
+  duration: 0,
 });
+
 const snackbar = ref({
   value: false,
   color: "",
@@ -41,8 +42,9 @@ async function getIngredient() {
 }
 
 
-async function updateIngredient() { // is the string an ID by default?
-  await IngredientServices.updateIngredient(ingredient.value)
+async function updateIngredient() { 
+
+  await IngredientServices.updateIngredient(ingredient.value.id, ingredient.value) 
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -86,13 +88,13 @@ function closeSnackBar() {
                   required
                 ></v-text-field>
                 <v-text-field
-                  v-model.number="ingredient.unit"
-                  label="Number of Servings"
+                  v-model.number="ingredient.price"
+                  label="Ticket Price"
                   type="number"
                 ></v-text-field>
                 <v-text-field
-                  v-model.number="ingredient.pricePerUnit"
-                  label="Time to Make (in minutes)"
+                  v-model.number="ingredient.duration"
+                  label="Duration (in minutes)"
                   type="number"
                 ></v-text-field>
                 <v-switch
@@ -104,9 +106,9 @@ function closeSnackBar() {
               </v-col>
               <v-col>
                 <v-textarea
-                  v-model="ingredient.name"
+                  v-model="ingredient.description"
                   rows="10"
-                  label="Name"
+                  label="Description"
                 ></v-textarea>
               </v-col>
             </v-row>
