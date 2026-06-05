@@ -20,11 +20,13 @@ onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
-const shows = 
+const showtimes = 
 [
-  { id: 1, name: "Show", unit:"gallon", pricePerUnit: 2 },
+  { id: 1, name: "Thursdays", unit:"gallon", pricePerUnit: 2 },
+  { id: 2, name: "Fridays", unit:"gallon", pricePerUnit: 2 },
 
 ]
+
 
 function navigateToEdit() {
   router.push({ name: "editIngredient", params: { id: props.ingredient.id } });
@@ -72,13 +74,13 @@ function navigateToEdit() {
     </v-card-text>
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
-        <h3>Ingredients</h3>
-        <v-list>
+        <h3>Showtime</h3>
+        <v-list> <!-- fill with actual data later -->
           <v-list-item
-            v-for="show in shows"
-            :key="show.id"
+            v-for="showtime in showtimes" 
+            :key="showtime.id"
           >
-            {{ show.name }}
+            {{ showtime.name }}
           </v-list-item>
         </v-list>
       </v-card-text>
