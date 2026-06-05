@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import IngredientServices from "../services/IngredientServices.js";
+import ShowCardComponent from "../components/ShowCardComponent.vue";
 
 const units = [
   "cup",
@@ -219,5 +220,85 @@ function closeSnackBar() {
         </template>
       </v-snackbar>
     </div>
+
+
+     <div id="body2">
+
+      <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold"
+            >Shows
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+            >Add</v-btn
+          >
+        </v-col>
+      </v-row>
+
+      <ShowCardComponent
+        v-for="ingredient in ingredients"
+        :key="ingredient.id"
+        :ingredient="ingredient"
+        @deletedList="getIngredients()"
+      />
+
+      <v-dialog persistent v-model="isAdd" width="800">
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title class="headline mb-2">Add Recipe </v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="newIngredient.name"
+              label="Name"
+              required
+            ></v-text-field>
+
+            <v-select
+              v-model.number="newIngredient.unit"
+              label="Unit"
+              type="number"
+              :items="units"
+              required
+            ></v-select>
+            <v-text-field
+              v-model.number="newIngredient.pricePerUnit"
+              label="Time to Make (in minutes)"
+              type="number"
+            ></v-text-field>
+
+            <v-switch
+              v-model="newIngredient.isPublished"
+              hide-details
+              inset
+              :label="`Publish? ${newIngredient.isPublished ? 'Yes' : 'No'}`"
+            ></v-switch>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn variant="flat" color="secondary" @click="closeAdd()"
+              >Close</v-btn
+            >
+            <v-btn variant="flat" color="primary" @click="addIngredient()"
+              >Add Show</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-snackbar v-model="snackbar.value" rounded="pill">
+        {{ snackbar.text }}
+
+        <template v-slot:actions>
+          <v-btn
+            :color="snackbar.color"
+            variant="text"
+            @click="closeSnackBar()"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </div>
+
   </v-container>
 </template>
