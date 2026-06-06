@@ -66,16 +66,20 @@ async function getIngredients() {
   <h1> Playing Soon </h1>
   <Carousel id="carousel" v-bind="carouselConfig">
     <Slide v-for="ingredient in ingredients" :key="ingredient.name"> <!-- iterate through events list -->
+      
+
+      
       <div class="infoDiv">
+      <a class="text-link" href="www.google.com">
       <img id="playingsoon" :src="'/oc_logo.png'" class="carousel__item" /> 
       <h3> {{ ingredient.name }}</h3>
+      </a>
   
       </div>
     </Slide>
 
     <template #addons> <!-- add ons for extra stuff -->
       <Navigation /> <!-- left and right arrows -->
-      <Pagination class="pagination" /> <!-- little segments at the bottom indicating index -->
     </template>
   </Carousel>
 
@@ -99,9 +103,7 @@ async function getIngredients() {
 
 }
 
-.pagination{
-  margin: 0% 0% -4% 0%;
-}
+
 
 #carousel{
   margin: 0% 0% 0% 4%;

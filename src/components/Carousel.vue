@@ -39,7 +39,6 @@ const events =
 
     <template #addons> <!-- add ons for extra stuff -->
       <Navigation /> <!-- left and right arrows -->
-      <Pagination class="pagination" /> <!-- little segments at the bottom indicating index -->
     </template>
   </Carousel>
 </template>
@@ -57,9 +56,7 @@ img{
   text-align: left;
 }
 
-.pagination{
-  margin: 0% 0% -4% 0%;
-}
+
 
 #carousel{
   margin: 5% 0% 10% 0%;
