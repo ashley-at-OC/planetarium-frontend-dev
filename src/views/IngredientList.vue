@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import IngredientServices from "../services/IngredientServices.js";
+import ShowCardComponent from "../components/ShowCardComponent.vue";
 
 const units = [
   "cup",
@@ -119,88 +120,83 @@ function closeSnackBar() {
 
 <template>
   <v-container>
-    <div id="body">
+ 
+
+     <div id="body">
+
       <v-row align="center" class="mb-4">
         <v-col cols="10"
           ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Ingredients
+            >Shows
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
           <v-btn v-if="user !== null" color="accent" @click="openAdd()"
-            >Add</v-btn
+            >Add Show</v-btn
           >
         </v-col>
       </v-row>
 
-      <v-table class="rounded-lg elevation-5">
-        <thead>
-          <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Unit</th>
-            <th class="text-left">Price Per Unit</th>
-            <th class="text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in ingredients" :key="item.name">
-            <td>{{ item.name }}</td>
-            <td>{{ item.unit }}</td>
-            <td>${{ item.pricePerUnit }}</td>
-            <td>
-              <v-icon
-                size="small"
-                icon="mdi-pencil"
-                @click="openEdit(item)"
-              ></v-icon>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+      <!-- put showtime details in here -->
+      <ShowCardComponent
+        v-for="ingredient in ingredients"
+        :key="ingredient.id"
+        :ingredient="ingredient"
+        @deletedList="getIngredients()"
+      />
 
-      <v-dialog persistent :model-value="isAdd || isEdit" width="800">
+      <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-item>
-            <v-card-title class="headline mb-2"
-              >{{ isAdd ? "Add Ingredient" : isEdit ? "Edit Ingredient" : "" }}
-            </v-card-title>
-          </v-card-item>
+          <v-card-title class="headline mb-2">Add a new Show </v-card-title>
           <v-card-text>
             <v-text-field
               v-model="newIngredient.name"
               label="Name"
               required
             ></v-text-field>
-            <v-select
-              v-model="newIngredient.unit"
-              :items="units"
-              label="Unit"
-              required
-            >
-            </v-select>
+
             <v-text-field
-              v-model="newIngredient.pricePerUnit"
-              label="Price Per Unit"
+              v-model.number="newIngredient.description"
+              label="Description"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model.number="newIngredient.price"
+              label="Ticket Price"
               type="number"
             ></v-text-field>
+
+              <v-text-field
+              v-model.number="newIngredient.duration"
+              label="Duration (in minutes)"
+              type="number"
+            ></v-text-field>        
+
+
+             <!-- https://vuetifyjs.com/en/components/file-inputs/#usage -->
+            <!-- need to try this later -->
+            <v-file-input 
+              v-model="newIngredient.image"
+              label="Upload cover image"
+              show-size
+              clearable
+            > </v-file-input>
+
+            <!-- doesn't need a switch, probably need to copy this to Showtime -->
+            <v-switch 
+              v-model="newIngredient.isPublished"
+              hide-details
+              inset
+              :label="`Publish? ${newIngredient.isPublished ? 'Yes' : 'No'}`"
+            ></v-switch>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              variant="flat"
-              color="secondary"
-              @click="isAdd ? closeAdd() : isEdit ? closeEdit() : false"
+            <v-btn variant="flat" color="secondary" @click="closeAdd()"
               >Close</v-btn
             >
-            <v-btn
-              variant="flat"
-              color="primary"
-              @click="
-                isAdd ? addIngredient() : isEdit ? updateIngredient() : false
-              "
-              >{{
-                isAdd ? "Add Ingredient" : isEdit ? "Update Ingredient" : ""
-              }}</v-btn
+            <v-btn variant="flat" color="primary" @click="addIngredient()"
+              >Add Show</v-btn
             >
           </v-card-actions>
         </v-card>
@@ -219,5 +215,6 @@ function closeSnackBar() {
         </template>
       </v-snackbar>
     </div>
+
   </v-container>
 </template>

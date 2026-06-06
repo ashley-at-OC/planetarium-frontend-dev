@@ -24,6 +24,12 @@ const router = createRouter({
       name: "ingredients",
       component: () => import("./views/IngredientList.vue"),
     },
+    {
+      path: "/ingredient/:id",
+      name: "editIngredient",
+      props: true,
+      component: () => import("./views/EditIngredient.vue"),
+    },
   ],
 });
 
