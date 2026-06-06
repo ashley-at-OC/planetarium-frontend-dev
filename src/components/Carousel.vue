@@ -15,6 +15,7 @@ const slide = ref('img')
 const slideInfo = ref('infoDiv')
 const CarouselPagination = ref('pagnation')
 const CarouselStyle = ref("carousel")
+const getTicketsButton = ref("getTicketsButton")
 const events = 
 [
   { id: 1, src: "/oc_logo.png", title: "Event1", description: "Description1", time: "12:00PM - 1:00PM", date: "May 2nd" },
@@ -32,6 +33,7 @@ const events =
       <p> {{ event.description }}</p>
       <p> {{ event.time }}</p>
       <p> {{ event.date }}</p>
+      <button id="getTicketsButton"> Get tickets now! </button>
       </div>
     </Slide>
 
@@ -46,12 +48,13 @@ const events =
 <style>
 
 img{
-  width:40%;
-  height:100%;
+  width:50%;
+  height:90%;
 }
 
 .infoDiv{
   margin:4%;
+  text-align: left;
 }
 
 .pagination{
@@ -62,6 +65,14 @@ img{
   margin: 5% 0% 10% 0%;
 }
 
-
+#getTicketsButton{
+  margin: 10% 0% 0% 0%;
+  padding: 15% 0% 15% 0%;
+  background-color: blue;
+  color: aliceblue;
+  width:200%;
+  
+  
+}
 
 </style>
