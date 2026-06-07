@@ -4,6 +4,8 @@ import { ref } from "vue";
 import RecipeCard from "../components/RecipeCardComponent.vue";
 import RecipeServices from "../services/RecipeServices.js";
 import Carousel from "../components/Carousel.vue";
+import PlayingSoon from "../components/PlayingSoon.vue";
+import WhatsNew from "../components/WhatsNew.vue";
 
 const recipes = ref([]);
 const isAdd = ref(false);
@@ -89,26 +91,25 @@ function closeSnackBar() {
     <div id="body">
 
       <Carousel> CAROUSEL </Carousel>
-      <v-row align="center" class="mb-4">
-        <v-col cols="10"
-          ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Recipes
-          </v-card-title>
-        </v-col>
-        <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
-            >Add</v-btn
-          >
-        </v-col>
-      </v-row>
 
+      <br>
+ 
+  
+      <PlayingSoon> PLAYING SOON </PlayingSoon>
+
+      <br> 
+
+      <WhatsNew> WHATS NEW </WhatsNew>
+      <!--
       <RecipeCard
         v-for="recipe in recipes"
         :key="recipe.id"
         :recipe="recipe"
         @deletedList="getLists()"
       />
+    -->
 
+      <!--
       <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
           <v-card-title class="headline mb-2">Add Recipe </v-card-title>
@@ -161,10 +162,16 @@ function closeSnackBar() {
             variant="text"
             @click="closeSnackBar()"
           >
+        
             Close
           </v-btn>
         </template>
       </v-snackbar>
+    -->
+    
     </div>
   </v-container>
 </template>
+
+
+
