@@ -30,6 +30,12 @@ const router = createRouter({
       props: true,
       component: () => import("./views/EditIngredient.vue"),
     },
+    {
+      path: "/ingredient/:id",
+      name: "selectedShow",
+      props: true,
+      component: () => import("./views/SelectedShow.vue"),
+    },
   ],
 });
 

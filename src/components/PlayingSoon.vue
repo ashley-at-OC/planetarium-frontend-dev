@@ -2,10 +2,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import 'vue3-carousel/carousel.css'
+
+import { useRouter } from "vue-router";
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import RecipeCardComponent from './RecipeCardComponent.vue';
 import IngredientServices from '../services/IngredientServices.js';
-
+const router = useRouter();
 
 const user = ref(null);
 const snackbar = ref({
@@ -58,6 +60,10 @@ async function getIngredients() {
   } 
 
 
+function navigateToSelectedShow(ingredient) { // can't use props here because this isn't the parent of SelectedShow?
+  router.push({ name: "selectedShow", params: { id: ingredient.id } }); // just push the ingredient through
+}
+
 // Clicking an event will open a Card
 
 </script>
@@ -67,13 +73,11 @@ async function getIngredients() {
   <Carousel id="carousel" v-bind="carouselConfig">
     <Slide v-for="ingredient in ingredients" :key="ingredient.name"> <!-- iterate through events list -->
       
-
-      
-      <div class="infoDiv">
-      <a class="text-link" href="www.google.com">
+      <div class="infoDiv" @click="navigateToSelectedShow(ingredient)">
+   
       <img id="playingsoon" :src="'/oc_logo.png'" class="carousel__item" /> 
       <h3> {{ ingredient.name }}</h3>
-      </a>
+
   
       </div>
     </Slide>
@@ -109,6 +113,11 @@ async function getIngredients() {
   margin: 0% 0% 0% 4%;
   padding: 5%;
 
+}
+
+
+.infoDiv {
+  cursor: pointer;  
 }
 
 </style>
