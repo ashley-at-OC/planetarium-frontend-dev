@@ -32,6 +32,17 @@ onMounted(() => {
           cssClass: "Standard",
           price: 15,
         },
+        handicap: {
+          label: "Handicap Accessible",
+          cssClass: "Handicap",
+          price: 15,
+          seats: [
+            { row: 0, col: 0 },
+            { row: 0, col: 1 },
+            { row: 0, col: 8 },
+            { row: 0, col: 9 },
+          ],
+        },
       },
 
       // Mark already booked seats as unavailable.
@@ -54,10 +65,9 @@ onMounted(() => {
   <v-container>
     <h1 class="text-h4 mb-2">Select Your Seats</h1>
     <p class="mb-4">
-      Click an available seat to add it to your purchase. Reserved seats (red)
-      are already taken.
+      Click on the available seats to select them. Then click "Checkout" to
+      proceed to payment.
     </p>
-
     <!-- SeatChart.js renders the seating chart inside this div. -->
     <div ref="containerRef" class="seatchart-container"></div>
   </v-container>
@@ -76,17 +86,15 @@ onMounted(() => {
   transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
 }
 
-/* Styles seats that are available to be selected. */
 .sc-seat-available {
-  background-color: #3e84f5 !important;
+  background-color: #eab308 !important;
   color: white !important;
 }
 
-/* Styles available seats. */
 .sc-seat-available:hover {
   opacity: 1 !important;
   transform: scale(1.15);
-  background-color: #1e3fac !important;
+  background-color: #ca8a04 !important;
   cursor: pointer;
   position: relative;
   z-index: 10;
@@ -101,5 +109,25 @@ onMounted(() => {
 /* Reserved seats can't be clicked. */
 .sc-seat-reserved:hover {
   cursor: not-allowed;
+}
+
+/* Handicap seats */
+.sc-seat-available.Handicap {
+  background-color: #3e84f5 !important;
+  color: transparent !important; /* hide the "A1"/"A2" label */
+  position: relative;
+}
+.sc-seat-available.Handicap::after {
+  content: "♿";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+}
+.sc-seat-available.Handicap:hover {
+  background-color: #1e3fac !important;
 }
 </style>
