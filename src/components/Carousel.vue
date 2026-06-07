@@ -1,8 +1,12 @@
 <!-- Reference: https://vue3-carousel.ismail9k.com/getting-started.html --> 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+import { useRouter } from "vue-router";
+import IngredientServices from '../services/IngredientServices.js';
+
+const router = useRouter();
 
 const carouselConfig = { 
   itemsToShow: 1, // 2.5 cuts off slide, do a whole number
@@ -10,30 +14,53 @@ const carouselConfig = {
   autoplay:"5000"
 }
 
+const ingredients = ref([]);
 // CSS Styles
 const slide = ref('img')
 const slideInfo = ref('infoDiv')
 const CarouselPagination = ref('pagnation')
 const CarouselStyle = ref("carousel")
 const getTicketsButton = ref("getTicketsButton")
-const events = 
-[
-  { id: 1, src: "/oc_logo.png", title: "Event1", description: "Description1", time: "12:00PM - 1:00PM", date: "May 2nd" },
-  { id: 2, src: "/oc_logo.png", title: "Event2", description: "Description2", time: "3:00PM - 4:00PM", date: "May 2nd"  },
-  { id: 3, src: "/oc_logo.png", title: "Event3", description: "Description3", time: "5:00PM - 6:00PM", date: "May 2nd"  }
-]
+
+
+onMounted(async () => {
+  await getIngredients();
+
+});
+
+async function getIngredients() {
+
+    await IngredientServices.getIngredients()
+      .then((response) => {
+        ingredients.value = response.data;
+      })
+      .catch((error) => {
+        console.log(error);
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = error.response.data.message;
+      });
+  } 
+
+  function navigateToSelectedShow(ingredient) { // can't use props here because this isn't the parent of SelectedShow?
+  router.push({ name: "selectedShow", params: { id: ingredient.id } }); // just push the ingredient through
+}
+
+
+
+
 </script>
 
 <template>
-  <Carousel id="carousel" v-bind="carouselConfig">
-    <Slide v-for="event in events" :key="event.id"> <!-- iterate through events list -->
-     <img :src="event.src" class="carousel__item" /> 
+  <Carousel id="bannerCarousel" v-bind="carouselConfig">
+    <Slide v-for="ingredient in ingredients" :key="ingredient.id"> <!-- iterate through ingredients list -->
+     <img :src="'/oc_logo.png'" class="carousel__item" /> 
       <div class="infoDiv">
-      <h3> {{ event.title }}</h3>
-      <p> {{ event.description }}</p>
-      <p> {{ event.time }}</p>
-      <p> {{ event.date }}</p>
-      <button id="getTicketsButton"> Get tickets now! </button>
+      <h3> {{ ingredient.name }}</h3>
+      <p> {{ ingredient.description }}</p>
+
+         
+      <button id="getTicketsButton" @click="navigateToSelectedShow(ingredient)"> Get tickets now! </button>
       </div>
     </Slide>
 
@@ -58,16 +85,18 @@ img{
 
 
 
-#carousel{
+#bannerCarousel{
   margin: 5% 0% 10% 0%;
+  background-color: rgb(66, 58, 59);
+  color:white;
 }
 
 #getTicketsButton{
   margin: 10% 0% 0% 0%;
-  padding: 15% 0% 15% 0%;
-  background-color: blue;
+  background-color: rgb(255, 0, 0);
   color: aliceblue;
-  width:200%;
+  width:200px;
+  height: 50px;
   
   
 }
