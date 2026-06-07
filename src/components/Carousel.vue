@@ -1,8 +1,15 @@
 <!-- Reference: https://vue3-carousel.ismail9k.com/getting-started.html --> 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
+
+const router = useRouter();
+
+function goToSeatMap() {
+  router.push({ name: 'seatMap' });
+}
 
 const carouselConfig = { 
   itemsToShow: 1, // 2.5 cuts off slide, do a whole number
@@ -33,7 +40,7 @@ const events =
       <p> {{ event.description }}</p>
       <p> {{ event.time }}</p>
       <p> {{ event.date }}</p>
-      <button id="getTicketsButton"> Get tickets now! </button>
+      <button id="getTicketsButton" @click="goToSeatMap"> Get tickets now! </button>
       </div>
     </Slide>
 

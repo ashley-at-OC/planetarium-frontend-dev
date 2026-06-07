@@ -30,6 +30,11 @@ const router = createRouter({
       props: true,
       component: () => import("./views/EditIngredient.vue"),
     },
+    {
+      path: "/seats",
+      name: "seatMap",
+      component: () => import("./views/SeatMap.vue"),
+    },
   ],
 });
 
