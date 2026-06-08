@@ -8,6 +8,11 @@ import IngredientServices from '../services/IngredientServices.js';
 
 const router = useRouter();
 
+
+function goToSeatMap() {
+  router.push({ name: 'seatMap' });
+}
+
 const carouselConfig = { 
   itemsToShow: 1, // 2.5 cuts off slide, do a whole number
   wrapAround: true,
@@ -60,7 +65,7 @@ async function getIngredients() {
       <p> {{ ingredient.description }}</p>
 
          
-      <button id="getTicketsButton" @click="navigateToSelectedShow(ingredient)"> Get tickets now! </button>
+      <button id="getTicketsButton" @click="navigateToSelectedShow(ingredient)"> View show </button>
       </div>
     </Slide>
 
