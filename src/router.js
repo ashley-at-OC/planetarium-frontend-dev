@@ -42,6 +42,11 @@ const router = createRouter({
       props: true,
       component: () => import("./views/Payment.vue"),
     },
+    {
+      path: "/seats",
+      name: "seatMap",
+      component: () => import("./views/SeatMap.vue"),
+    },
   ],
 });
 

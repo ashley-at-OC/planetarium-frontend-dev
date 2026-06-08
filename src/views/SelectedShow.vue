@@ -1,10 +1,15 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import IngredientServices from "../services/IngredientServices.js";
 
 
 const route = useRoute();
+const router = useRouter();
+
+function goToSeatMap() {
+  router.push({ name: "seatMap" });
+}
 // got rid of a lot of stuff for now
 const ingredients = ref([]);
 
@@ -59,7 +64,7 @@ async function getIngredient() {
 
 </div>
 
-<button id="tempButton"> Get Tickets </button>
+<button id="tempButton" @click="goToSeatMap"> Get Tickets </button>
 
 
 </v-container>

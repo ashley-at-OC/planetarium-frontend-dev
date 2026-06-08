@@ -8,7 +8,6 @@ import IngredientServices from '../services/IngredientServices.js';
 
 const router = useRouter();
 
-const router = useRouter();
 
 function goToSeatMap() {
   router.push({ name: 'seatMap' });
@@ -66,7 +65,7 @@ async function getIngredients() {
       <p> {{ ingredient.description }}</p>
 
          
-      <button id="getTicketsButton" @click="navigateToSelectedShow(ingredient)"> Get tickets now! </button>
+      <button id="getTicketsButton" @click="navigateToSelectedShow(ingredient)"> View show </button>
       </div>
     </Slide>
 
