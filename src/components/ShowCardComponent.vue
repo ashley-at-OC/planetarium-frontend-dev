@@ -45,8 +45,8 @@ function navigateToEdit() {
         <v-col cols="10">
           {{ ingredient.name }}
           <v-chip class="ma-2" color="primary" label>
-            <v-icon start icon="mdi-account-circle-outline"></v-icon>
-            {{ ingredient.price }} Servings
+            <v-icon start icon="mdi-cash"></v-icon>
+            ${{ ingredient.price }} 
           </v-chip>
           <v-chip class="ma-2" color="accent" label>
             <v-icon start icon="mdi-clock-outline"></v-icon>
