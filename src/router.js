@@ -36,6 +36,12 @@ const router = createRouter({
       props: true,
       component: () => import("./views/SelectedShow.vue"),
     },
+    {
+      path: "/payment/:id",
+      name: "payment",
+      props: true,
+      component: () => import("./views/Payment.vue"),
+    },
   ],
 });
 
