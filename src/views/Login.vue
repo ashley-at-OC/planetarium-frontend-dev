@@ -25,7 +25,16 @@ onMounted(async () => {
   // }
 });
 
-function navigateToRecipes() {
+function continueAsGuest() {
+  window.localStorage.setItem(
+    "user",
+    JSON.stringify({
+      isGuest: true,
+      firstName: "Guest",
+      lastName: "User",
+      email: "guest@planetarium.local",
+    })
+  );
   router.push({ name: "recipes" });
 }
 
@@ -109,9 +118,9 @@ function closeSnackBar() {
             class="ml-2"
             variant="flat"
             color="secondary"
-            @click="navigateToRecipes()"
+            @click="continueAsGuest()"
           >
-            View Published Recipes
+            Continue as Guest
           </v-btn>
         </v-card-title>
       </v-card>
