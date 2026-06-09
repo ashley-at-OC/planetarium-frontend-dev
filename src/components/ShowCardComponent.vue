@@ -3,13 +3,14 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import RecipeReports from "../reports/RecipeReports.js";
 import ShowtimeServices from "../services/ShowtimeServices.js";
+import IngredientServices from "../services/IngredientServices.js";
 
 const props = defineProps({ // props only works for components within a View (parent --> child)
    ingredient: { required: true }
 });
 
 const ingredient = ref(props.ingredient);
-
+const isEdit = ref(false);
 const isAdd = ref(false);
 const user = ref(null);
 const router = useRouter();
@@ -41,6 +42,7 @@ const newShowtime = ref({
 });
 
 
+
 // opening the dialog
 function openAdd() {
   newShowtime.value.startDateTime = "";
@@ -57,7 +59,6 @@ function closeAdd() {
 async function addShowtime() {
   isAdd.value = false;
   newShowtime.value.ingredientId = ingredient.value.id; // redundant but just in case
-  delete newShowtime.value.id;
   console.log("AddShowtime:", newShowtime.value);
 
   await ShowtimeServices.addShowtime(newShowtime.value)
@@ -76,6 +77,43 @@ async function addShowtime() {
 }
 
 
+
+async function editShowtime() {
+  isEdit.value = false; // closes the dialog pop-up
+  newShowtime.value.ingredientId = ingredient.value.id; // redundant but just in case
+  await ShowtimeServices.updateShowtime(newShowtime.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${newShowtime.value.name} editted successfully!`; 
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getShowtimes();
+}
+
+
+// for Showtime, Show gets editted elsewhere
+function openEdit(item) {
+  newShowtime.value.id = item.id;
+  newShowtime.value.ingredientId = item.ingredientId;
+  newShowtime.value.startDateTime = item.startDateTime;
+  newShowtime.value.endDateTime = item.endDateTime;
+  newShowtime.value.attendeeCount = item.attendeeCount;
+  newShowtime.value.isActive = item.isActive;
+  isEdit.value = true;
+}
+
+function closeEdit() {
+  isEdit.value = false;
+}
+
+
+
 async function getShowtimes() {
     await ShowtimeServices.getShowtimesForIngredient(ingredient.value.id)
       .then((response) => {
@@ -86,9 +124,53 @@ async function getShowtimes() {
       });
   } 
 
+
+
+  
+async function deleteShow() { // still on Ingredient functions
+  await IngredientServices.deleteIngredient(ingredient.value.id)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Show deleted successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+
+  await getIngredients();
+}
+
+
+// directly pass item into deleteShowtime since there is no specific showtime ref
+
+async function deleteShowtime(item) { // still on Ingredient functions
+  await ShowtimeServices.deleteShowtime(item)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Showtime deleted successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+
+  await getShowtimesForIngredient();
+}
+
+
+
 function navigateToEdit() {
   router.push({ name: "editIngredient", params: { id: ingredient.value.id } });
 }
+
+
 
 
 function closeSnackBar() {
@@ -129,6 +211,12 @@ function closeSnackBar() {
             icon="mdi-pencil"
             @click="navigateToEdit()"
           ></v-icon>
+            <v-icon
+            v-if="user !== null"
+            size="small"
+            icon="mdi-delete"
+            @click.stop="deleteShow(item)"
+          ></v-icon>
         </v-col>
       </v-row>
     </v-card-title>
@@ -163,12 +251,12 @@ function closeSnackBar() {
               <v-icon
                 size="small"
                 icon="mdi-pencil"
-                @click="editFunctionWheneverItsReady()"
+                @click="openEdit(item)"
               ></v-icon>
               <v-icon 
               size="small"
               icon="mdi-delete" class="ml-2" 
-              @click="deleteFunctionWheneverItsReady()">
+              @click.stop="deleteShowtime(item)">
             </v-icon>
   
             </td>
@@ -221,10 +309,60 @@ function closeSnackBar() {
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+
+
+      <!-- Edit Showtime -->
+       <v-dialog persistent v-model="isEdit" width="800">
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title class="headline mb-2"> Edit Showtime </v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="newShowtime.startDateTime"
+              label="Start datetime"
+              type="datetime-local"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-model="newShowtime.endDateTime"
+              label="End datetime"
+              type="datetime-local"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model.number="newShowtime.attendeeCount"
+              label="Attendee Count"
+              type="number"
+            ></v-text-field>
+            <!-- binded to a boolean by default -->
+            <v-switch  
+              v-model="newShowtime.isActive"
+              hide-details
+              inset
+              :label="`Active? ${newShowtime.isActive ? 'Yes' : 'No'}`"
+            ></v-switch>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn variant="flat" color="secondary" @click="closeEdit()"
+              >Close</v-btn
+            >
+            <v-btn variant="flat" color="primary" @click="editShowtime()"
+              >Save</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
      
       </v-card-text>
     </v-expand-transition>
   </v-card>
+
+
+  
+
+  
 
    <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
