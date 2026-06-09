@@ -68,7 +68,7 @@ function navigateToSelectedShow(ingredient) { // can't use props here because th
       
       <div class="infoDiv" @click="navigateToSelectedShow(ingredient)">
    
-      <img id="playingsoon" :src="'/oc_logo.png'" class="carousel__item" /> 
+      <img id="playingsoon" :src="'/default.png'" class="carousel__item" /> 
       <h3> {{ ingredient.name }}</h3>
 
   

@@ -106,7 +106,7 @@ function closeSnackBar() {
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          {{ ingredient.name }}
+          ID {{ ingredient.id }} - {{ ingredient.name }}
           <v-chip class="ma-2" color="primary" label>
             <v-icon start icon="mdi-cash"></v-icon>
             ${{ ingredient.price }} 
@@ -143,6 +143,7 @@ function closeSnackBar() {
         <thead>
           <tr>
             <th class="text-left">ID</th>
+            <th class="text-left">Show ID</th>
             <th class="text-left">Start datetime</th>
             <th class="text-left">End datetime</th>
             <th class="text-left">Attendee Count</th>
@@ -153,6 +154,7 @@ function closeSnackBar() {
         <tbody>
           <tr v-for="item in showtimes" :key="item.id">
             <td>{{ item.id }}</td>
+            <td>{{ item.ingredientId }}</td>
             <td>{{ item.startDateTime }}</td>
             <td>{{ item.endDateTime }}</td>
             <td>{{ item.attendeeCount }}</td>

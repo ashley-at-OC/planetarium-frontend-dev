@@ -58,7 +58,7 @@ function navigateToSelectedShow(ingredient) { // can't use props here because th
   <Carousel id="carousel" v-bind="carouselConfig">
     <Slide v-for="ingredient in ingredients" :key="ingredient.name"> <!-- iterate through events list -->
           <div class="infoDiv" @click="navigateToSelectedShow(ingredient)">
-      <img id="whatsNew" :src="'/oc_logo.png'" class="carousel__item" /> 
+      <img id="whatsNew" :src="'/default.png'" class="carousel__item" /> 
       <h3> {{ ingredient.name }}</h3>
       </div>
 

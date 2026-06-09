@@ -1,5 +1,5 @@
 <script setup>
-import ocLogo from "/oc_logo.png";
+import ocLogo from "/default.png";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices";
@@ -7,7 +7,7 @@ import UserServices from "../services/UserServices";
 const router = useRouter();
 
 const user = ref(null);
-const title = ref("Recipes");
+const title = ref("Planetarium");
 const logoURL = ref("");
 
 onMounted(() => {
@@ -45,7 +45,7 @@ function logout() {
         {{ title }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn class="mx-2" :to="{ name: 'recipes' }"> Recipes </v-btn>
+      <v-btn class="mx-2" :to="{ name: 'recipes' }"> Home </v-btn>
       <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
         Login
       </v-btn>

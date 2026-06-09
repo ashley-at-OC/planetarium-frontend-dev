@@ -25,6 +25,7 @@ const slide = ref('img')
 const slideInfo = ref('infoDiv')
 const CarouselPagination = ref('pagnation')
 const CarouselStyle = ref("carousel")
+const navigationStyle = ref("navigation")
 const getTicketsButton = ref("getTicketsButton")
 
 
@@ -59,7 +60,7 @@ async function getIngredients() {
 <template>
   <Carousel id="bannerCarousel" v-bind="carouselConfig">
     <Slide v-for="ingredient in ingredients" :key="ingredient.id"> <!-- iterate through ingredients list -->
-     <img :src="'/oc_logo.png'" class="carousel__item" /> 
+     <img :src="'/default.png'" class="carousel__item" /> 
       <div class="infoDiv">
       <h3> {{ ingredient.name }}</h3>
       <p> {{ ingredient.description }}</p>
@@ -70,7 +71,7 @@ async function getIngredients() {
     </Slide>
 
     <template #addons> <!-- add ons for extra stuff -->
-      <Navigation /> <!-- left and right arrows -->
+      <Navigation id="navigation" /> <!-- left and right arrows -->
     </template>
   </Carousel>
 </template>
@@ -104,6 +105,10 @@ img{
   height: 50px;
   
   
+}
+
+#navigation{
+  margin: 0% -7% 0% -7%;
 }
 
 </style>
