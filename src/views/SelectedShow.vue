@@ -2,10 +2,12 @@
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import IngredientServices from "../services/IngredientServices.js";
-
+import ShowtimeServices from "../services/ShowtimeServices.js";
 
 const route = useRoute();
 const router = useRouter();
+
+
 
 // Stash the selected show's id so SeatMap.vue can fetch its price from the backend
 function goToSeatMap() {
@@ -13,7 +15,10 @@ function goToSeatMap() {
   router.push({ name: "seatMap" });
 }
 
-const ingredients = ref([]);
+
+// reminder: need to have a reference when pulling data from DB
+const showtimes = ref([]); // a list of all showtimes fetched using the 
+
 
 const ingredient = ref({
   id: null,
@@ -26,12 +31,18 @@ const ingredient = ref({
 
 // CSS Styles
 const showDetails = ref("showDetails");
+const showDetailsImage = ref("showDetailsImage");
+const buttonList = ref("buttonList");
+const showtimeButton = ref("showtimeButton");
 
 
 
 onMounted(async () => {
   await getIngredient();
+  await getShowtimes(); // a list of all showtimes fetched using the ingredient (show) id
 });
+
+
 
 async function getIngredient() {
   await IngredientServices.getIngredient(route.params.id)
@@ -42,6 +53,34 @@ async function getIngredient() {
       console.log(error);
     });
 }
+
+
+// stole from ShowCardComponent
+async function getShowtimes() {
+    await ShowtimeServices.getShowtimesForIngredient(ingredient.value.id)
+      .then((response) => {
+        showtimes.value = response.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+      // convert DateTime format into more readable time format (hh:mm)
+      // shouldn't modify database
+      for (let i = 0; i < showtimes.value.length; ++i)
+      {
+        var date = new Date(showtimes.value[i].startDateTime);
+        var time = date.toLocaleTimeString([],  {  
+           hour: "numeric", minute: "2-digit"
+        });
+        showtimes.value[i].formattedTime = time; // store back into showtimes under formattedTime (you can dynamically add a new property in Vue)
+      }
+
+
+  } 
+
+
+
 
 </script>
 
@@ -66,13 +105,19 @@ async function getIngredient() {
 
 </div>
 
-<button id="tempButton" @click="goToSeatMap"> Get Tickets </button>
-
+<!--<button id="getTicketsButton" @click="goToSeatMap"> View show </button>-->
+  
+<div id="buttonList"> 
+  <button id="showtimeButton" v-for="showtime in showtimes" :key="showtime.id" @click="goToSeatMap"> <!-- needs to pass in a prop later -->
+  <h3> {{ showtime.formattedTime }}</h3>
+</button>
+</div>
 
 </v-container>
 </template>
 
 <style>
+
 #showDetails {
   margin: 4%;
   display: flex;
@@ -82,18 +127,23 @@ async function getIngredient() {
 #showDetailsImage
 {
   margin: 0% 5% 0% 5%;
-  width: 20%;
+  width: 40%;
   height: 30%;
 }
 
-#tempButton{
-  margin: 0% 0% 0% 50%;
-  background-color: rgb(255, 0, 0);
-  color:white;
-  width: 20%;
+#showtimeButton{
+  margin: 0% 3% 0% 3%;
+  background-color: rgb(228, 222, 222);
+  color:black;
+  width: 10%;
   font-size: medium;
-
 }
 
+#buttonList{
+  display: flex;
+
+
+
+}
 
 </style>
