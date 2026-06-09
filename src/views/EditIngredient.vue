@@ -2,13 +2,26 @@
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import IngredientServices from "../services/IngredientServices.js";
+import ShowtimeServices from "../services/ShowtimeServices.js";
+import ShowCardComponent from "../components/ShowCardComponent.vue"
 //import RecipeIngredientServices from "../services/RecipeIngredientServices";
 //import RecipeStepServices from "../services/RecipeStepServices";
 //import RecipeServices from "../services/RecipeServices";
 
+
 const route = useRoute();
 // got rid of a lot of stuff for now
-const ingredients = ref([]);
+const ingredients = ref([]); // change to shows later
+const showtimes = ref([]); 
+const isAdd = ref(false);
+const user = ref(null);
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
+
+//props wouldn't work well here
 
 const ingredient = ref({
   id: null,
@@ -18,17 +31,13 @@ const ingredient = ref({
   duration: 0,
 });
 
-const snackbar = ref({
-  value: false,
-  color: "",
-  text: "",
-});
+
 
 
 onMounted(async () => {
-  await getIngredient();
-
-
+  getIngredient();
+  getShowtimes();
+    user.value = JSON.parse(localStorage.getItem("user"));
 });
 
 async function getIngredient() {
@@ -60,9 +69,80 @@ async function updateIngredient() {
 }
 
 
+
+// -------------------- Showtimes -------------------
+
+
+const newShowtime = ref({
+  id: undefined,
+  ingredientId: ingredient.value.id,
+  startDateTime: undefined,
+  endDateTime: undefined,
+  attendeeCount: undefined,
+  isActive: undefined,
+});
+
+
+
+
+async function addShowtime() {
+  isAdd.value = false;
+  newShowtime.value.ingredientId = ingredient.value.id; // redundant but just in case
+  delete newShowtime.value.id;
+  console.log("AddShowtime:", newShowtime.value);
+
+  await ShowtimeServices.addShowtime(newShowtime.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${newShowtime.value.name} added successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getShowtimes();
+}
+
+
+async function getShowtimes() {
+
+  console.log("Ingredient ID used:", ingredient.value.id);
+  user.value = JSON.parse(localStorage.getItem("user"));
+    await ShowtimeServices.getShowtimesForIngredient(ingredient.value.id)
+      .then((response) => {
+        showtimes.value = response.data;
+      })
+      .catch((error) => {
+        console.log(error);
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = error.response.data.message;
+      });
+}
+
+
+
+// opening the dialog
+function openAdd() {
+  newShowtime.value.startDateTime = "";
+  newShowtime.value.endDateTime = "";
+  newShowtime.value.attendeeCount = undefined;
+  newShowtime.value.isActive = false;
+  isAdd.value = true;
+}
+
+function closeAdd() {
+  isAdd.value = false;
+}
+
+
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
 
 
 </script>
@@ -122,6 +202,9 @@ function closeSnackBar() {
         </v-card>
       </v-col>
     </v-row>
+
+
+  
 
    <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
