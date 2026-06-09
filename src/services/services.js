@@ -18,7 +18,7 @@ const apiClient = axios.create({
   },
   transformRequest: (data, headers) => {
     let token = null;
-    if (localStorage.getItem("user") !== null) {
+    if (token) {
       token = JSON.parse(localStorage.getItem("user")).token;
     }
     let authHeader = "";
