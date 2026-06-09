@@ -54,7 +54,7 @@ async function getIngredient() {
 
 </h1>
   <div id="showDetails">   
-  <img id="showDetailsImage" :src="'/oc_logo.png'" /> 
+  <img id="showDetailsImage" :src="'/default.png'" /> 
   <div id="text">
 <p>{{ ingredient.description }}</p>
 
@@ -88,9 +88,10 @@ async function getIngredient() {
 
 #tempButton{
   margin: 0% 0% 0% 50%;
-  background-color: blue;
+  background-color: rgb(255, 0, 0);
   color:white;
-  width: 10%;
+  width: 20%;
+  font-size: medium;
 
 }
 
