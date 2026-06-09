@@ -1,63 +1,112 @@
 <script setup>
-// Import onMounted so we can create the seat chart after the page element exists.
 import { onMounted, ref } from "vue";
-// Import the SeatChart.js library
-import Seatchart from "seatchart";
-// Import the default SeatChart.js styles
+import Seatchart from "seatchart"; //SeatChart.js library
 import "seatchart/dist/seatchart.min.css";
+import { useRouter } from "vue-router";
+import SeatServices from "../services/SeatServices.js"; // Fetches seat data from the backend.
+import IngredientServices from "../services/IngredientServices.js"; // Fetches show data from the backend
 
-// Create a Vue ref for the div where SeatChart.js will draw the seating chart.
+// For SeatChart.js to draw the seating chart.
 const containerRef = ref(null);
-// Later, these reserved seats will come from the backend.
-const reservedSeats = [
-  { row: 0, col: 4 },
-  { row: 1, col: 5 },
-  { row: 2, col: 2 },
-  { row: 3, col: 7 },
-  { row: 4, col: 0 },
-];
 
-// Run this once the component is mounted.
-onMounted(() => {
-  // Create the SeatChart.js instance inside the container div.
-  new Seatchart(containerRef.value, {
-    // Configure seat map layout.
-    map: {
-      rows: 6,
-      columns: 10,
-      // Define the seat type.
-      seatTypes: {
-        default: {
-          label: "Standard",
-          cssClass: "Standard",
-          price: 15,
+// Used to push the user to the payment page.
+const router = useRouter();
+
+// Convert backend letters to integers for SeatChart.js. For example, A -> 0, B -> 1, ...
+const rowToIndex = (row) => row.charCodeAt(0) - "A".charCodeAt(0);
+
+// Fetch the seat list from the backend then hand the data to SeatChart.js
+onMounted(async () => {
+  try {
+    const response = await SeatServices.getSeats();
+    const seats = response.data;
+
+    // Look up the show fromSelectedShow.vue). Fall back to $15 if it fails.
+    let seatPrice = 15;
+    const selectedShowId = localStorage.getItem("selectedShowId");
+    if (selectedShowId) {
+      try {
+        const showResponse = await IngredientServices.getIngredient(
+          selectedShowId
+        );
+        const show = Array.isArray(showResponse.data)
+          ? showResponse.data[0]
+          : showResponse.data;
+        if (show?.price) seatPrice = Number(show.price);
+      } catch (showError) {
+        console.log("Could not load show price; using fallback.", showError);
+      }
+    }
+
+    // Pull out the handicap seats so we can pass them to SeatChart.js as a
+    // special seat type. Subtract 1 from the backend to match the SeatChart library.
+    const handicapSeats = seats
+      .filter((s) => s.seatType === "handicap")
+      .map((s) => ({ row: rowToIndex(s.seatRow), col: s.seatColumn - 1 }));
+
+    // Build the reserved seat list from the backend's isBooked flag.
+    const reservedSeats = seats
+      .filter((s) => s.isBooked)
+      .map((s) => ({ row: rowToIndex(s.seatRow), col: s.seatColumn - 1 }));
+
+    // Compute grid size from the data.
+    const rows = Math.max(...seats.map((s) => rowToIndex(s.seatRow))) + 1;
+    const columns = Math.max(...seats.map((s) => s.seatColumn));
+
+    // Create the SeatChart.js
+    const seatchart = new Seatchart(containerRef.value, {
+      map: {
+        rows,
+        columns,
+        seatTypes: {
+          default: {
+            label: "Standard",
+            cssClass: "Standard",
+            price: seatPrice,
+          },
+          handicap: {
+            label: "Handicap Accessible",
+            cssClass: "Handicap",
+            price: seatPrice,
+            seats: handicapSeats,
+          },
         },
-        handicap: {
-          label: "Handicap Accessible",
-          cssClass: "Handicap",
-          price: 15,
-          seats: [
-            { row: 0, col: 0 },
-            { row: 0, col: 1 },
-            { row: 0, col: 8 },
-            { row: 0, col: 9 },
-          ],
-        },
+        // Mark already booked seats as unavailable.
+        reservedSeats,
+        // Walkway between column 5 and column 6.
+        columnSpacers: [5],
       },
+      // Configure the built-in cart from SeatChart.js.
+      cart: {
+        visible: true,
+        currency: "$",
+        submitLabel: "Checkout",
+      },
+    });
 
-      // Mark already booked seats as unavailable.
-      reservedSeats,
-      // Add a visual walkway in the middle.
-      columnSpacers: [5],
-    },
+    // When the user clicks checkout button we stash it in localStorage
+    seatchart.addEventListener("submit", (event) => {
+      // Convert each selected seat in the cart to its backend `id` by matching on row/col. 
+      const selectedSeatIds = event.cart
+        .map((cartSeat) => {
+          const seat = seats.find(
+            (s) =>
+              rowToIndex(s.seatRow) === cartSeat.index.row &&
+              s.seatColumn - 1 === cartSeat.index.col
+          );
+          return seat?.id;
+        })
 
-    // Configure the built in cart from SeatChart.js.
-    cart: {
-      visible: true,
-      currency: "$",
-      submitLabel: "Checkout",
-    },
-  });
+      // Stash the selection so the payment page can read it and POST it.
+      localStorage.setItem("selectedSeatIds", JSON.stringify(selectedSeatIds));
+      localStorage.setItem("selectedTotal", event.total);
+
+      // Send the user to the payment page.
+      router.push({ name: "payment" });
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 </script>
 
@@ -68,7 +117,7 @@ onMounted(() => {
       Click on the available seats to select them. Then click "Checkout" to
       proceed to payment.
     </p>
-    <!-- SeatChart.js renders the seating chart inside this div. -->
+    <!-- SeatChart.js renders the seating chart -->
     <div ref="containerRef" class="seatchart-container"></div>
   </v-container>
 </template>

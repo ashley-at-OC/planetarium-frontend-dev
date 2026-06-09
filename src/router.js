@@ -37,7 +37,7 @@ const router = createRouter({
       component: () => import("./views/SelectedShow.vue"),
     },
     {
-      path: "/payment/:id",
+      path: "/payment/:id?",
       name: "payment",
       props: true,
       component: () => import("./views/Payment.vue"),

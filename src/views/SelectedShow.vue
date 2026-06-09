@@ -7,10 +7,12 @@ import IngredientServices from "../services/IngredientServices.js";
 const route = useRoute();
 const router = useRouter();
 
+// Stash the selected show's id so SeatMap.vue can fetch its price from the backend
 function goToSeatMap() {
+  localStorage.setItem("selectedShowId", ingredient.value.id);
   router.push({ name: "seatMap" });
 }
-// got rid of a lot of stuff for now
+
 const ingredients = ref([]);
 
 const ingredient = ref({
