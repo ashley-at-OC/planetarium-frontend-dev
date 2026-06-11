@@ -27,6 +27,12 @@ function logout() {
   user.value = null;
   router.push({ name: "login" });
 }
+
+function navigateToPurchases() {
+ 
+  router.push({ name: "purchases" });
+}
+
 </script>
 
 <template>
@@ -49,9 +55,10 @@ function logout() {
       <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
         Login
       </v-btn>
-      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'ingredients' }">
-        Shows
+      <v-btn v-else class="mx-2" :to="{ name: 'ingredients' }"> <!-- WIP: need to change to only appear for system admin accounts -->
+        Management
       </v-btn>
+
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">
@@ -75,7 +82,13 @@ function logout() {
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
+
+               <div> 
+              <v-btn rounded variant="text" @click="navigateToPurchases()"> Purchases </v-btn>
+              <v-divider class="my-3"></v-divider>
               <v-btn rounded variant="text" @click="logout()"> Logout </v-btn>
+              </div>
+
             </div>
           </v-card-text>
         </v-card>
