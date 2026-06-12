@@ -47,6 +47,11 @@ const router = createRouter({
       name: "seatMap",
       component: () => import("./views/SeatMap.vue"),
     },
+    {
+      path: "/purchases",
+      name: "purchases",
+      component: () => import("./views/PurchaseHistory.vue"),
+    },
   ],
 });
 
