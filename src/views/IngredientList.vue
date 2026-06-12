@@ -2,26 +2,16 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import IngredientServices from "../services/IngredientServices.js";
+import UserServices from "../services/UserServices.js";
 import ShowCardComponent from "../components/ShowCardComponent.vue";
+import { Tabs, Tab } from 'super-vue3-tabs';
+import BookingTransactionCardComponent from "../components/BookingTransactionCardComponent.vue";
 
-const units = [
-  "cup",
-  "gallon",
-  "gram",
-  "kilogram",
-  "liter",
-  "milliliter",
-  "ounce",
-  "pint",
-  "piece",
-  "pound",
-  "quart",
-  "tablespoon",
-  "teaspoon",
-  "unit",
-];
 
-const ingredients = ref([]);
+const activeTab = ref('0');
+
+const ingredients = ref([]); // shows
+const users = ref([]);
 const isAdd = ref(false);
 const isEdit = ref(false);
 const user = ref(null);
@@ -30,6 +20,7 @@ const snackbar = ref({
   color: "",
   text: "",
 });
+
 const newIngredient = ref({
   id: undefined,
   name: undefined,
@@ -37,10 +28,23 @@ const newIngredient = ref({
   pricePerUnit: undefined,
 });
 
+const newUser = ref({
+  id: undefined,
+  firstName: undefined,
+  lastName: undefined,
+  email: undefined,
+  password: undefined,
+});
+
+
 onMounted(async () => {
+  await getUsers();
   await getIngredients();
+  
   user.value = JSON.parse(localStorage.getItem("user"));
 });
+
+
 
 async function getIngredients() {
   await IngredientServices.getIngredients()
@@ -54,6 +58,22 @@ async function getIngredients() {
       snackbar.value.text = error.response.data.message;
     });
 }
+
+async function getUsers() {
+  await UserServices.getUser() // change to users plural?
+    .then((response) => {
+      users.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
+
+
+
 
 async function addIngredient() {
   isAdd.value = false;
@@ -119,10 +139,28 @@ function closeSnackBar() {
 </script>
 
 <template>
+
+
+
+
+
+
+
+
+
+
   <v-container>
  
+  <!-- https://mdsaban.com/packages/super-vue3-tabs-component/demo/ -->
+  <Tabs>
+    <Tab value="Shows">
+      <template #icon>
+        <i class="fas fa-home"></i>
+      </template>
+      
+      <p>This is the content of Tab 1</p>
 
-     <div id="body">
+      <!-- SHOWS -->
 
       <v-row align="center" class="mb-4">
         <v-col cols="10"
@@ -144,10 +182,58 @@ function closeSnackBar() {
         :ingredient="ingredient"
         @deletedList="getIngredients()"
       />
+    </Tab>
+    <Tab value="Users">
+      <template #icon>
+        <i class="fas fa-user"></i>
+      </template>
+      <p>This is the content of Tab 2</p>
+
+      
+      <!-- USERS   -->
+      <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold"
+            >Users
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+            >Add User</v-btn
+          >
+        </v-col>
+      </v-row>
+      <!-- put Booking and Transaction details in here -->
+      <BookingTransactionCardComponent
+        v-for="ingredient in users"
+        :key="ingredient.id"
+        :ingredient="ingredient"
+        @deletedList="getUsers()"
+      />
+
+    </Tab>
+    <Tab value="Seats">
+      <template #icon>
+        <i class="fas fa-cog"></i>
+      </template>
+      <p>This is the content of Tab 3</p>
+    </Tab>
+
+    <Tab value="Ticket">
+      <template #icon>
+        <i class="fas fa-cog"></i>
+      </template>
+      <p>This is the content of Tab 4</p>
+    </Tab>
+  </Tabs>
+  
+     <div id="body">
+
+
 
       <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add a new Show </v-card-title>
+          <v-card-title class="headline mb-2">Add a new User</v-card-title>
           <v-card-text>
             <v-text-field
               v-model="newIngredient.name"
