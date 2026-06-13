@@ -104,7 +104,7 @@ function closeEdit() {
 }
 
 
-
+// still needs to be updated to Booking + Transactions
 async function getShowtimes() {
     await ShowtimeServices.getShowtimesForIngredient(ingredient.value.id)
       .then((response) => {
@@ -118,12 +118,12 @@ async function getShowtimes() {
 
 
   
-async function deleteShow() { // still on Ingredient functions
-  await IngredientServices.deleteIngredient(ingredient.value.id)
+async function deleteUser() { // still on Ingredient functions
+  await UserServices.deleteUser(ingredient.value.id)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Show deleted successfully!`;
+      snackbar.value.text = `User deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -211,7 +211,7 @@ function closeSnackBar() {
             v-if="currentUser !== null"
             size="small"
             icon="mdi-delete"
-            @click.stop="deleteShow(item)"
+            @click.stop="deleteUser(item)"
           ></v-icon>
         </v-col>
 

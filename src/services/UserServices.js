@@ -18,7 +18,10 @@ export default {
   },
 
   updateUser(user) {
-    return apiClient.put("users/" + user.id, user);
+  },
+
+  deleteUser(id) {
+    return apiClient.delete("users/" + id)
   },
 
   loginUser(user) {
