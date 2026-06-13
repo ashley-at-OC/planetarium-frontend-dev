@@ -4,7 +4,7 @@ import Seatchart from "seatchart"; //SeatChart.js library
 import "seatchart/dist/seatchart.min.css";
 import { useRouter } from "vue-router";
 import SeatServices from "../services/SeatServices.js"; // Fetches seat data from the backend.
-import IngredientServices from "../services/IngredientServices.js"; // Fetches show data from the backend
+import ShowServices from "../services/ShowServices.js"; // Fetches show data from the backend
 
 // For SeatChart.js to draw the seating chart.
 const containerRef = ref(null);
@@ -26,7 +26,7 @@ onMounted(async () => {
     const selectedShowId = localStorage.getItem("selectedShowId");
     if (selectedShowId) {
       try {
-        const showResponse = await IngredientServices.getIngredient(
+        const showResponse = await ShowServices.getShow(
           selectedShowId
         );
         const show = Array.isArray(showResponse.data)

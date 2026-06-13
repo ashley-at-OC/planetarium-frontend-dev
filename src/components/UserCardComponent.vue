@@ -3,14 +3,14 @@ import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import RecipeReports from "../reports/RecipeReports.js";
 import ShowtimeServices from "../services/ShowtimeServices.js";
-import IngredientServices from "../services/IngredientServices.js";
+import ShowServices from "../services/ShowServices.js";
 import UserServices from "../services/UserServices.js";
 
 const props = defineProps({ // props only works for components within a View (parent --> child)
-   ingredient: { required: true }
+   show: { required: true }
 });
 
-const ingredient = ref(props.ingredient);  // change to user
+const show = ref(props.show);  // change to user
 const isEdit = ref(false);
 const isAdd = ref(false);
 const currentUser = ref(null);
@@ -25,7 +25,7 @@ const snackbar = ref({
 
 
 onMounted(async () => {
-  console.log("USER ID:", ingredient.value.id);
+  console.log("USER ID:", show.value.id);
   getShowtimes();
   currentUser.value = JSON.parse(localStorage.getItem("user"));
 });
@@ -49,7 +49,7 @@ function closeAdd() {
 
 async function addShowtime() {
   isAdd.value = false;
-  newShowtime.value.ingredientId = ingredient.value.id; // redundant but just in case
+  newShowtime.value.showId = show.value.id; // redundant but just in case
   console.log("AddShowtime:", newShowtime.value);
 
   await ShowtimeServices.addShowtime(newShowtime.value)
@@ -71,7 +71,7 @@ async function addShowtime() {
 
 async function editShowtime() {
   isEdit.value = false; // closes the dialog pop-up
-  newShowtime.value.ingredientId = ingredient.value.id; // redundant but just in case
+  newShowtime.value.showId = show.value.id; // redundant but just in case
   await ShowtimeServices.updateShowtime(newShowtime.value)
     .then(() => {
       snackbar.value.value = true;
@@ -91,7 +91,7 @@ async function editShowtime() {
 // for Showtime, Show gets editted elsewhere
 function openEdit(item) {
   newShowtime.value.id = item.id;
-  newShowtime.value.ingredientId = item.ingredientId;
+  newShowtime.value.showId = item.showId;
   newShowtime.value.startDateTime = item.startDateTime;
   newShowtime.value.endDateTime = item.endDateTime;
   newShowtime.value.attendeeCount = item.attendeeCount;
@@ -106,7 +106,7 @@ function closeEdit() {
 
 // still needs to be updated to Booking + Transactions
 async function getShowtimes() {
-    await ShowtimeServices.getShowtimesForIngredient(ingredient.value.id)
+    await ShowtimeServices.getShowtimesForShow(show.value.id)
       .then((response) => {
         showtimes.value = response.data;
       })
@@ -118,8 +118,8 @@ async function getShowtimes() {
 
 
   
-async function deleteUser() { // still on Ingredient functions
-  await UserServices.deleteUser(ingredient.value.id)
+async function deleteUser() { // still on Show functions
+  await UserServices.deleteUser(show.value.id)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -132,13 +132,13 @@ async function deleteUser() { // still on Ingredient functions
       snackbar.value.text = error.response.data.message;
     });
 
-  await getIngredients();
+  await getShows();
 }
 
 
 // directly pass item into deleteShowtime since there is no specific showtime ref
 
-async function deleteShowtime(item) { // still on Ingredient functions
+async function deleteShowtime(item) { // still on Show functions
   await ShowtimeServices.deleteShowtime(item)
     .then(() => {
       snackbar.value.value = true;
@@ -152,19 +152,19 @@ async function deleteShowtime(item) { // still on Ingredient functions
       snackbar.value.text = error.response.data.message;
     });
 
-  await getShowtimesForIngredient();
+  await getShowtimesForShow();
 }
 
 
 
 function navigateToEdit() {
 
-  console.log("INGREDIENT:", ingredient);
-  console.log("INGREDIENT ID:", ingredient.value.id);
-  // console.log("INGREDIENT ID:", ingredient.id);
+  console.log("SHOW:", show);
+  console.log("SHOW ID:", show.value.id);
+  // console.log("SHOW ID:", show.id);
 
 
- router.push({ name: "editUser", params: { id: ingredient.value.id } });
+ router.push({ name: "editUser", params: { id: show.value.id } });
 
 }
 
@@ -186,11 +186,11 @@ function closeSnackBar() {
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          ID {{ ingredient.firstName }} {{ ingredient.lastName }}
+          ID {{ show.firstName }} {{ show.lastName }}
           <!-- change color of chip for different user types? -->
           <v-chip class="ma-2" color="blue" label>
             <v-icon start icon="mdi-account-circle"></v-icon>
-            {{ ingredient.role }} 
+            {{ show.role }} 
           </v-chip>
           
         </v-col>
@@ -221,7 +221,7 @@ function closeSnackBar() {
     <v-expand-transition>
        
       <v-card-text class="pt-0" v-show="showDetails">
-         {{ ingredient.email }}
+         {{ show.email }}
 
          <v-table>
         <thead>
@@ -236,12 +236,12 @@ function closeSnackBar() {
         </thead>
         <tbody>
           <tr>
-            <td>{{ ingredient.id }}</td>
-            <td>{{ ingredient.firstName }}</td>
-            <td>{{ ingredient.lastName }}</td>
-            <td>{{ ingredient.email }}</td>
-            <td>{{ ingredient.createdAt}}</td>
-            <td>{{ ingredient.updatedAt }}</td>
+            <td>{{ show.id }}</td>
+            <td>{{ show.firstName }}</td>
+            <td>{{ show.lastName }}</td>
+            <td>{{ show.email }}</td>
+            <td>{{ show.createdAt}}</td>
+            <td>{{ show.updatedAt }}</td>
           </tr>
 
           </tbody>
@@ -272,7 +272,7 @@ function closeSnackBar() {
         <tbody>
           <tr v-for="item in showtimes" :key="item.id">
             <td>{{ item.id }}</td>
-            <td>{{ item.ingredientId }}</td>
+            <td>{{ item.showId }}</td>
             <td>{{ item.startDateTime }}</td>
             <td>{{ item.endDateTime }}</td>
             <td>{{ item.attendeeCount }}</td>

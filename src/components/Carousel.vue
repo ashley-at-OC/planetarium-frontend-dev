@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue';
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import { useRouter } from "vue-router";
-import IngredientServices from '../services/IngredientServices.js';
+import ShowServices from '../services/ShowServices.js';
 
 const router = useRouter();
 
@@ -19,7 +19,7 @@ const carouselConfig = {
   autoplay:"5000"
 }
 
-const ingredients = ref([]);
+const shows = ref([]);
 // CSS Styles
 const slide = ref('img')
 const slideInfo = ref('infoDiv')
@@ -30,15 +30,15 @@ const getTicketsButton = ref("getTicketsButton")
 
 
 onMounted(async () => {
-  await getIngredients();
+  await getShows();
 
 });
 
-async function getIngredients() {
+async function getShows() {
 
-    await IngredientServices.getIngredients()
+    await ShowServices.getShows()
       .then((response) => {
-        ingredients.value = response.data;
+        shows.value = response.data;
       })
       .catch((error) => {
         console.log(error);
@@ -48,8 +48,8 @@ async function getIngredients() {
       });
   } 
 
-  function navigateToSelectedShow(ingredient) { // can't use props here because this isn't the parent of SelectedShow?
-  router.push({ name: "selectedShow", params: { id: ingredient.id } }); // just push the ingredient through
+  function navigateToSelectedShow(show) { // can't use props here because this isn't the parent of SelectedShow?
+  router.push({ name: "selectedShow", params: { id: show.id } }); // just push the show through
 }
 
 
@@ -59,14 +59,14 @@ async function getIngredients() {
 
 <template>
   <Carousel id="bannerCarousel" v-bind="carouselConfig">
-    <Slide v-for="ingredient in ingredients" :key="ingredient.id"> <!-- iterate through ingredients list -->
+    <Slide v-for="show in shows" :key="show.id"> <!-- iterate through shows list -->
      <img :src="'/default.png'" class="carousel__item" /> 
       <div class="infoDiv">
-      <h3> {{ ingredient.name }}</h3>
-      <p> {{ ingredient.description }}</p>
+      <h3> {{ show.name }}</h3>
+      <p> {{ show.description }}</p>
 
          
-      <button id="getTicketsButton" @click="navigateToSelectedShow(ingredient)"> View show </button>
+      <button id="getTicketsButton" @click="navigateToSelectedShow(show)"> View show </button>
       </div>
     </Slide>
 

@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import IngredientServices from "../services/IngredientServices.js";
+import ShowServices from "../services/ShowServices.js";
 import ShowtimeServices from "../services/ShowtimeServices.js";
 
 const route = useRoute();
@@ -11,7 +11,7 @@ const router = useRouter();
 
 // Stash the selected show's id so SeatMap.vue can fetch its price from the backend
 function goToSeatMap() {
-  localStorage.setItem("selectedShowId", ingredient.value.id);
+  localStorage.setItem("selectedShowId", show.value.id);
   router.push({ name: "seatMap" });
 }
 
@@ -20,12 +20,12 @@ function goToSeatMap() {
 const showtimes = ref([]); // a list of all showtimes fetched using the 
 
 
-const ingredient = ref({
+const show = ref({
   id: null,
   name: "",
   description: "",
   price: 0,
-  duration: 0,
+  durationMinutes: 0,
 });
 
 
@@ -38,16 +38,16 @@ const showtimeButton = ref("showtimeButton");
 
 
 onMounted(async () => {
-  await getIngredient();
-  await getShowtimes(); // a list of all showtimes fetched using the ingredient (show) id
+  await getShow();
+  await getShowtimes(); // a list of all showtimes fetched using the show (show) id
 });
 
 
 
-async function getIngredient() {
-  await IngredientServices.getIngredient(route.params.id)
+async function getShow() {
+  await ShowServices.getShow(route.params.id)
     .then((response) => {
-      ingredient.value = Array.isArray(response.data) ? response.data[0] : response.data; // in case there is an array
+      show.value = Array.isArray(response.data) ? response.data[0] : response.data; // in case there is an array
     })
     .catch((error) => {
       console.log(error);
@@ -57,7 +57,7 @@ async function getIngredient() {
 
 // stole from ShowCardComponent
 async function getShowtimes() {
-    await ShowtimeServices.getShowtimesForIngredient(ingredient.value.id)
+    await ShowtimeServices.getShowtimesForShow(show.value.id)
       .then((response) => {
         showtimes.value = response.data;
       })
@@ -89,17 +89,17 @@ async function getShowtimes() {
     <v-container>
  
 <h1> 
-{{ ingredient.name }}
+{{ show.name }}
 
 </h1>
   <div id="showDetails">   
   <img id="showDetailsImage" :src="'/default.png'" /> 
   <div id="text">
-<p>{{ ingredient.description }}</p>
+<p>{{ show.description }}</p>
 
 <div id="chips">
-<v-chip>{{ingredient.duration }} minutes</v-chip>
-<v-chip>${{ingredient.price }}</v-chip>
+<v-chip>{{show.durationMinutes }} minutes</v-chip>
+<v-chip>${{show.price }}</v-chip>
 </div>
 </div>
 

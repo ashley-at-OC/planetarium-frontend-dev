@@ -41,7 +41,7 @@ const handleDelete = (event) => {
     </template>
 
     <v-row>
-      <!-- {{ recipeStep.recipeIngredient }} -->
+      <!-- {{ recipeStep.recipeShow }} -->
     </v-row>
   </v-list-item>
 </template>

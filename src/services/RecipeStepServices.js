@@ -7,8 +7,8 @@ export default {
   getRecipeStepsForRecipe(recipeId) {
     return apiClient.get("recipes/" + recipeId + "/recipeSteps");
   },
-  getRecipeStepsForRecipeWithIngredients(recipeId) {
-    return apiClient.get("recipes/" + recipeId + "/recipeStepsWithIngredients");
+  getRecipeStepsForRecipeWithShows(recipeId) {
+    return apiClient.get("recipes/" + recipeId + "/recipeStepsWithShows");
   },
   getRecipeStep(recipeStep) {
     return apiClient.get(

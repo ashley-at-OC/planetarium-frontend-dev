@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted } from "vue";
 import { ref } from "vue";
-import IngredientServices from "../services/IngredientServices.js";
+import ShowServices from "../services/ShowServices.js";
 import UserServices from "../services/UserServices.js";
 import ShowCardComponent from "../components/ShowCardComponent.vue";
 import { Tabs, Tab } from 'super-vue3-tabs';
@@ -18,7 +18,7 @@ const snackbar = ref({
 });
 
 // Data retrieved from database gets put here
-const ingredients = ref([]); // shows
+const shows = ref([]); // shows
 const users = ref([]);
 
 // Dialog
@@ -29,7 +29,7 @@ const isAddUser= ref(false);
 const user = ref(null);
 
 // New object being built by user
-const newIngredient = ref({
+const newShow = ref({
   id: undefined,
   name: undefined,
   description: undefined,
@@ -54,16 +54,16 @@ const roles = ref(["customer", "admin"]);
 // Stuff that gets displayed 
 onMounted(async () => {
 
-  await getIngredients(); 
+  await getShows(); 
   await getUsers();
   user.value = JSON.parse(localStorage.getItem("user")); // still not super sure what this is for? Maybe used for getting objects specific to a user account
 });
 
 // --------------------------------------------------- Shows
-async function getIngredients() {
-  await IngredientServices.getIngredients()
+async function getShows() {
+  await ShowServices.getShows()
     .then((response) => {
-      ingredients.value = response.data;
+      shows.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -73,14 +73,14 @@ async function getIngredients() {
     });
 }
 
-async function addIngredient() {
+async function addShow() {
   isAddShow.value = false;
-  delete newIngredient.id;
-  await IngredientServices.addIngredient(newIngredient.value)
+  delete newShow.id;
+  await ShowServices.addShow(newShow.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.value.name} added successfully!`;
+      snackbar.value.text = `${newShow.value.name} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -88,16 +88,16 @@ async function addIngredient() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getIngredients();
+  await getShows();
 }
 
-async function updateIngredient() {
+async function updateShow() {
   isEditShow.value = false;
-  await IngredientServices.updateIngredient(newIngredient.value)
+  await ShowServices.updateShow(newShow.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newIngredient.name} updated successfully!`;
+      snackbar.value.text = `${newShow.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -105,14 +105,14 @@ async function updateIngredient() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getIngredients();
+  await getShows();
 }
 
 function openAddShow() {
-  newIngredient.value.name = undefined;
-  newIngredient.value.description = undefined;
-  newIngredient.value.price = undefined;
-  newIngredient.value.image = undefined;
+  newShow.value.name = undefined;
+  newShow.value.description = undefined;
+  newShow.value.price = undefined;
+  newShow.value.image = undefined;
 
   isAddShow.value = true;
 }
@@ -216,10 +216,10 @@ function closeSnackBar() {
 
       <!-- put showtime details in here -->
       <ShowCardComponent
-        v-for="ingredient in ingredients"
-        :key="ingredient.id"
-        :ingredient="ingredient"
-        @deletedList="getIngredients()"
+        v-for="show in shows"
+        :key="show.id"
+        :show="show"
+        @deletedList="getShows()"
       />
 
 
@@ -228,25 +228,25 @@ function closeSnackBar() {
           <v-card-title class="headline mb-2">Add a new Show</v-card-title>
           <v-card-text>
             <v-text-field
-              v-model="newIngredient.name"
+              v-model="newShow.name"
               label="Name"
               required
             ></v-text-field>
 
             <v-text-field
-              v-model="newIngredient.description"
+              v-model="newShow.description"
               label="Description"
               required
             ></v-text-field>
             <v-text-field
-              v-model.number="newIngredient.price"
+              v-model.number="newShow.price"
               label="Ticket Price"
               type="number"
             ></v-text-field>
 
            <v-text-field
-              v-model.number="newIngredient.duration"
-              label="Duration (in minutes)"
+              v-model.number="newShow.durationMinutes"
+              label="Duration(in minutes)"
               type="number"
             ></v-text-field>        
 
@@ -254,7 +254,7 @@ function closeSnackBar() {
              <!-- https://vuetifyjs.com/en/components/file-inputs/#usage -->
             <!-- need to try this later -->
             <v-file-input 
-              v-model="newIngredient.image"
+              v-model="newShow.image"
               label="Upload cover image"
               show-size
               clearable
@@ -262,10 +262,10 @@ function closeSnackBar() {
 
             <!-- doesn't need a switch, probably need to copy this to Showtime -->
             <v-switch 
-              v-model="newIngredient.isPublished"
+              v-model="newShow.isPublished"
               hide-details
               inset
-              :label="`Publish? ${newIngredient.isPublished ? 'Yes' : 'No'}`"
+              :label="`Publish? ${newShow.isPublished ? 'Yes' : 'No'}`"
             ></v-switch>
 
 
@@ -275,7 +275,7 @@ function closeSnackBar() {
             <v-btn variant="flat" color="secondary" @click="closeAddShow()"
               >Close</v-btn
             >
-            <v-btn variant="flat" color="primary" @click="addIngredient()"
+            <v-btn variant="flat" color="primary" @click="addShow()"
               >Add Show</v-btn
             >
           </v-card-actions>
@@ -307,7 +307,7 @@ function closeSnackBar() {
       <UserCardComponent
         v-for="account in users" 
         :key="account.id"
-        :ingredient="account"
+        :show="account"
         @deletedList="getUsers()"
       />
 
