@@ -192,6 +192,15 @@ function closeSnackBar() {
                 ></v-textarea>
               </v-col>
             </v-row>
+            <v-row>
+              <v-file-input 
+              v-model="ingredient.image"
+              label="Upload cover image"
+              show-size
+              clearable
+              show-image
+            > </v-file-input>
+            </v-row>
           </v-card-text>
           <v-card-actions class="pt-0">
             <v-btn variant="flat" color="primary" @click="updateIngredient()"

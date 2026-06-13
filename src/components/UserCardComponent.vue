@@ -25,7 +25,7 @@ const snackbar = ref({
 
 
 onMounted(async () => {
-   console.log("Ingredient ID:", ingredient.value.id);
+  console.log("USER ID:", ingredient.value.id);
   getShowtimes();
   currentUser.value = JSON.parse(localStorage.getItem("user"));
 });
@@ -158,7 +158,14 @@ async function deleteShowtime(item) { // still on Ingredient functions
 
 
 function navigateToEdit() {
-  router.push({ name: "editIngredient", params: { id: ingredient.value.id } });
+
+  console.log("INGREDIENT:", ingredient);
+  console.log("INGREDIENT ID:", ingredient.value.id);
+  // console.log("INGREDIENT ID:", ingredient.id);
+
+
+ router.push({ name: "editUser", params: { id: ingredient.value.id } });
+
 }
 
 
@@ -338,7 +345,7 @@ function closeSnackBar() {
       <!-- Edit Showtime -->
        <v-dialog persistent v-model="isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2"> Edit Showtime </v-card-title>
+          <v-card-title class="headline mb-2"> Edit User </v-card-title>
           <v-card-text>
             <v-text-field
               v-model="newShowtime.startDateTime"

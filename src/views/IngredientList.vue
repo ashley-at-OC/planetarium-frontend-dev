@@ -5,27 +5,36 @@ import IngredientServices from "../services/IngredientServices.js";
 import UserServices from "../services/UserServices.js";
 import ShowCardComponent from "../components/ShowCardComponent.vue";
 import { Tabs, Tab } from 'super-vue3-tabs';
-import BookingTransactionCardComponent from "../components/BookingTransactionCardComponent.vue";
+import UserCardComponent from "../components/UserCardComponent.vue";
 
-
+// Tab
 const activeTab = ref('0');
 
-const ingredients = ref([]); // shows
-const users = ref([]);
-const isAdd = ref(false);
-const isEdit = ref(false);
-const user = ref(null);
+// Snackbar
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
 });
 
+// Data retrieved from database gets put here
+const ingredients = ref([]); // shows
+const users = ref([]);
+
+// Dialog
+const isAddShow = ref(false); // probably cleaner to pass in a value of "Show" or "User" + "Add" or "Edit" but editing happens in another page
+const isAddUser= ref(false); 
+
+// Currently logged in user
+const user = ref(null);
+
+// New object being built by user
 const newIngredient = ref({
   id: undefined,
   name: undefined,
-  unit: undefined,
-  pricePerUnit: undefined,
+  description: undefined,
+  price: undefined,
+  image: undefined,
 });
 
 const newUser = ref({
@@ -34,18 +43,23 @@ const newUser = ref({
   lastName: undefined,
   email: undefined,
   password: undefined,
+  role: undefined,
 });
 
 
+// Dropdown Options
+
+const roles = ref(["customer", "admin"]);
+
+// Stuff that gets displayed 
 onMounted(async () => {
+
+  await getIngredients(); 
   await getUsers();
-  await getIngredients();
-  
-  user.value = JSON.parse(localStorage.getItem("user"));
+  user.value = JSON.parse(localStorage.getItem("user")); // still not super sure what this is for? Maybe used for getting objects specific to a user account
 });
 
-
-
+// --------------------------------------------------- Shows
 async function getIngredients() {
   await IngredientServices.getIngredients()
     .then((response) => {
@@ -59,24 +73,8 @@ async function getIngredients() {
     });
 }
 
-async function getUsers() {
-  await UserServices.getUser() // change to users plural?
-    .then((response) => {
-      users.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-}
-
-
-
-
 async function addIngredient() {
-  isAdd.value = false;
+  isAddShow.value = false;
   delete newIngredient.id;
   await IngredientServices.addIngredient(newIngredient.value)
     .then(() => {
@@ -94,7 +92,7 @@ async function addIngredient() {
 }
 
 async function updateIngredient() {
-  isEdit.value = false;
+  isEditShow.value = false;
   await IngredientServices.updateIngredient(newIngredient.value)
     .then(() => {
       snackbar.value.value = true;
@@ -110,27 +108,68 @@ async function updateIngredient() {
   await getIngredients();
 }
 
-function openAdd() {
+function openAddShow() {
   newIngredient.value.name = undefined;
-  newIngredient.value.unit = undefined;
-  newIngredient.value.pricePerUnit = undefined;
-  isAdd.value = true;
+  newIngredient.value.description = undefined;
+  newIngredient.value.price = undefined;
+  newIngredient.value.image = undefined;
+
+  isAddShow.value = true;
 }
 
-function closeAdd() {
-  isAdd.value = false;
+function closeAddShow() {
+  isAddShow.value = false;
 }
 
-function openEdit(item) {
-  newIngredient.value.id = item.id;
-  newIngredient.value.name = item.name;
-  newIngredient.value.unit = item.unit;
-  newIngredient.value.pricePerUnit = item.pricePerUnit;
-  isEdit.value = true;
+
+// ----------------------------------- Users
+async function getUsers() {
+  await UserServices.getUsers() // change to users plural? Why is this singular?
+    .then((response) => {
+      users.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
 }
 
-function closeEdit() {
-  isEdit.value = false;
+
+async function addUser() { // adding a new user does not have immediate changes (have to refresh)
+  isAddUser.value = false;
+  delete newUser.id;
+  await UserServices.addUser(newUser.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${newUser.name} added successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getUsers();
+}
+
+
+function openAddUser() {
+  newUser.value.id = undefined;
+  newUser.value.firstName = undefined;
+  newUser.value.lastName = undefined;
+  newUser.value.email = undefined;
+  newUser.value.password = undefined;
+  newUser.value.role = undefined;
+  isAddUser.value = true;
+
+
+}
+
+function closeAddUser() {
+  isAddUser.value = false;
 }
 
 function closeSnackBar() {
@@ -158,7 +197,7 @@ function closeSnackBar() {
         <i class="fas fa-home"></i>
       </template>
       
-      <p>This is the content of Tab 1</p>
+      <p>Maybe add some totals or something here</p>
 
       <!-- SHOWS -->
 
@@ -169,7 +208,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null" color="accent" @click="openAddShow()"
             >Add Show</v-btn
           >
         </v-col>
@@ -182,58 +221,11 @@ function closeSnackBar() {
         :ingredient="ingredient"
         @deletedList="getIngredients()"
       />
-    </Tab>
-    <Tab value="Users">
-      <template #icon>
-        <i class="fas fa-user"></i>
-      </template>
-      <p>This is the content of Tab 2</p>
-
-      
-      <!-- USERS   -->
-      <v-row align="center" class="mb-4">
-        <v-col cols="10"
-          ><v-card-title class="pl-0 text-h4 font-weight-bold"
-            >Users
-          </v-card-title>
-        </v-col>
-        <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
-            >Add User</v-btn
-          >
-        </v-col>
-      </v-row>
-      <!-- put Booking and Transaction details in here -->
-      <BookingTransactionCardComponent
-        v-for="ingredient in users"
-        :key="ingredient.id"
-        :ingredient="ingredient"
-        @deletedList="getUsers()"
-      />
-
-    </Tab>
-    <Tab value="Seats">
-      <template #icon>
-        <i class="fas fa-cog"></i>
-      </template>
-      <p>This is the content of Tab 3</p>
-    </Tab>
-
-    <Tab value="Ticket">
-      <template #icon>
-        <i class="fas fa-cog"></i>
-      </template>
-      <p>This is the content of Tab 4</p>
-    </Tab>
-  </Tabs>
-  
-     <div id="body">
 
 
-
-      <v-dialog persistent v-model="isAdd" width="800">
+      <v-dialog persistent v-model="isAddShow" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add a new User</v-card-title>
+          <v-card-title class="headline mb-2">Add a new Show</v-card-title>
           <v-card-text>
             <v-text-field
               v-model="newIngredient.name"
@@ -242,7 +234,7 @@ function closeSnackBar() {
             ></v-text-field>
 
             <v-text-field
-              v-model.number="newIngredient.description"
+              v-model="newIngredient.description"
               label="Description"
               required
             ></v-text-field>
@@ -252,7 +244,7 @@ function closeSnackBar() {
               type="number"
             ></v-text-field>
 
-              <v-text-field
+           <v-text-field
               v-model.number="newIngredient.duration"
               label="Duration (in minutes)"
               type="number"
@@ -275,14 +267,112 @@ function closeSnackBar() {
               inset
               :label="`Publish? ${newIngredient.isPublished ? 'Yes' : 'No'}`"
             ></v-switch>
+
+
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="flat" color="secondary" @click="closeAdd()"
+            <v-btn variant="flat" color="secondary" @click="closeAddShow()"
               >Close</v-btn
             >
             <v-btn variant="flat" color="primary" @click="addIngredient()"
               >Add Show</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </Tab>
+
+
+
+    <!-- USERS   -->
+    <Tab value="Users">
+      <template #icon>
+        <i class="fas fa-user"></i>
+      </template>  
+      <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold"
+            >Users
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAddUser()"
+            >Add User</v-btn
+          >
+        </v-col>
+      </v-row>
+      <!-- put Booking and Transaction details in here -->
+       <!-- using account instead of user to not get confused with th eLOGGED IN user -->
+      <UserCardComponent
+        v-for="account in users" 
+        :key="account.id"
+        :ingredient="account"
+        @deletedList="getUsers()"
+      />
+
+    </Tab>
+    <Tab value="Seats">
+      <template #icon>
+        <i class="fas fa-cog"></i>
+      </template>
+  
+    </Tab>
+
+    <Tab value="Ticket">
+      <template #icon>
+        <i class="fas fa-cog"></i>
+      </template>
+  
+    </Tab>
+  </Tabs>
+  
+     <div id="body">
+
+
+     
+      <v-dialog persistent v-model="isAddUser" width="800">
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title class="headline mb-2">Add a new User</v-card-title>
+          <v-card-text>
+            <v-text-field
+              v-model="newUser.firstName"
+              label="First name"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-model="newUser.lastName"
+              label="Last name"
+              required
+            ></v-text-field>
+            <v-text-field
+              v-model="newUser.email"
+              label="Email"
+              required
+            ></v-text-field>
+
+            <v-text-field
+              v-model="newUser.password"
+              label="Password"
+              required
+           
+            ></v-text-field>
+
+            <v-select
+              v-model="newUser.role"
+              label="Account Role"
+              :items="roles"
+            ></v-select>
+
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn variant="flat" color="secondary" @click="closeAddUser()"
+              >Close</v-btn
+            >
+            <v-btn variant="flat" color="primary" @click="addUser()"
+              >Add User</v-btn
             >
           </v-card-actions>
         </v-card>
