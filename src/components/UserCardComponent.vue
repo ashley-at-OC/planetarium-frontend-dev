@@ -4,15 +4,16 @@ import { useRouter } from "vue-router";
 import RecipeReports from "../reports/RecipeReports.js";
 import ShowtimeServices from "../services/ShowtimeServices.js";
 import ShowServices from "../services/ShowServices.js";
+import UserServices from "../services/UserServices.js";
 
 const props = defineProps({ // props only works for components within a View (parent --> child)
    show: { required: true }
 });
 
-const show = ref(props.show);
+const show = ref(props.show);  // change to user
 const isEdit = ref(false);
 const isAdd = ref(false);
-const user = ref(null);
+const currentUser = ref(null);
 const router = useRouter();
 const showtimes = ref([]);
 const showDetails = ref(false); // expanded or not expanded
@@ -24,23 +25,13 @@ const snackbar = ref({
 
 
 onMounted(async () => {
-   console.log("Show ID:", show.value.id);
+  console.log("USER ID:", show.value.id);
   getShowtimes();
-  user.value = JSON.parse(localStorage.getItem("user"));
+  currentUser.value = JSON.parse(localStorage.getItem("user"));
 });
 
 
 // ---------------------- Showtime functions --------------------------------------
-
-const newShowtime = ref({
-  id: undefined,
-  showId: show.value.id,
-  startDateTime: undefined,
-  endDateTime: undefined,
-  attendeeCount: undefined,
-  isActive: undefined,
-});
-
 
 
 // opening the dialog
@@ -113,7 +104,7 @@ function closeEdit() {
 }
 
 
-
+// still needs to be updated to Booking + Transactions
 async function getShowtimes() {
     await ShowtimeServices.getShowtimesForShow(show.value.id)
       .then((response) => {
@@ -127,12 +118,12 @@ async function getShowtimes() {
 
 
   
-async function deleteShow() { // still on Show functions
-  await ShowServices.deleteShow(show.value.id)
+async function deleteUser() { // still on Show functions
+  await UserServices.deleteUser(show.value.id)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Show deleted successfully!`;
+      snackbar.value.text = `User deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -167,7 +158,14 @@ async function deleteShowtime(item) { // still on Show functions
 
 
 function navigateToEdit() {
-  router.push({ name: "editShow", params: { id: show.value.id } });
+
+  console.log("SHOW:", show);
+  console.log("SHOW ID:", show.value.id);
+  // console.log("SHOW ID:", show.id);
+
+
+ router.push({ name: "editUser", params: { id: show.value.id } });
+
 }
 
 
@@ -188,80 +186,81 @@ function closeSnackBar() {
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          ID {{ show.id }} - {{ show.name }}
-          <v-chip class="ma-2" color="primary" label>
-            <v-icon start icon="mdi-cash"></v-icon>
-            ${{ show.price }} 
+          ID {{ show.firstName }} {{ show.lastName }}
+          <!-- change color of chip for different user types? -->
+          <v-chip class="ma-2" color="blue" label>
+            <v-icon start icon="mdi-account-circle"></v-icon>
+            {{ show.role }} 
           </v-chip>
-          <v-chip class="ma-2" color="accent" label>
-            <v-icon start icon="mdi-clock-outline"></v-icon>
-            {{ show.durationMinutes }} minutes
-          </v-chip>
+          
         </v-col>
         <v-col class="d-flex justify-end">
-                 <v-icon 
+              <v-icon 
               size="small"
               icon="mdi-plus" class="ml-2" 
               @click="openAdd()">
             </v-icon>
 
           <v-icon
-            v-if="user !== null"
+            v-if="currentUser !== null"
             size="small"
             icon="mdi-pencil"
             @click="navigateToEdit()"
           ></v-icon>
             <v-icon
-            v-if="user !== null"
+            v-if="currentUser !== null"
             size="small"
             icon="mdi-delete"
-            @click.stop="deleteShow(item)"
+            @click.stop="deleteUser(item)"
           ></v-icon>
         </v-col>
+
       </v-row>
     </v-card-title>
 
     <v-expand-transition>
        
       <v-card-text class="pt-0" v-show="showDetails">
-    <v-table>
+         {{ show.email }}
+
+         <v-table>
         <thead>
           <tr>
             <th class="text-left">ID</th>
-            <th class="text-left">Name</th>
-            <th class="text-left">Price</th>
+            <th class="text-left">First Name</th>
+            <th class="text-left">Last Name</th>
+            <th class="text-left">Email</th>
             <th class="text-left">Created At</th>
             <th class="text-left">Updated At</th>
-    
-            <th class="text-left">Description</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>{{ show.id }}</td>
-            <td>{{ show.name }}</td>
-            <td>{{ show.price}}</td>
+            <td>{{ show.firstName }}</td>
+            <td>{{ show.lastName }}</td>
+            <td>{{ show.email }}</td>
             <td>{{ show.createdAt}}</td>
             <td>{{ show.updatedAt }}</td>
-            <td>{{ show.description }}</td>
           </tr>
 
           </tbody>
       </v-table>
+   
 
+        <br>
+        <hr>
+        <br>
+        <h3>Accounts</h3>
 
+         <v-card-text class="body-1">
 
-
-
-
-
-        <!-- how do I make this bold -->
-        <h1>Showtime</h1>
-
+    </v-card-text>
+        
       <v-table>
         <thead>
           <tr>
-            <th class="text-left">Showtime ID</th>
+            <th class="text-left">ID</th>
             <th class="text-left">Show ID</th>
             <th class="text-left">Start datetime</th>
             <th class="text-left">End datetime</th>
@@ -346,7 +345,7 @@ function closeSnackBar() {
       <!-- Edit Showtime -->
        <v-dialog persistent v-model="isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2"> Edit Showtime </v-card-title>
+          <v-card-title class="headline mb-2"> Edit User </v-card-title>
           <v-card-text>
             <v-text-field
               v-model="newShowtime.startDateTime"

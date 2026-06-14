@@ -4,12 +4,12 @@ import { ref, onMounted } from 'vue';
 import 'vue3-carousel/carousel.css'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import RecipeCardComponent from './RecipeCardComponent.vue';
-import IngredientServices from '../services/IngredientServices.js';
+import ShowServices from '../services/ShowServices.js';
 import { useRouter } from "vue-router";
 
 
 const router = useRouter();
-const ingredients = ref([]);
+const shows = ref([]);
 
 const carouselConfig = { 
   itemsToShow: 4,
@@ -26,15 +26,15 @@ const CarouselStyle = ref("carousel")
 
 
 onMounted(async () => {
-  await getIngredients();
+  await getShows();
 
 });
 
-async function getIngredients() {
+async function getShows() {
 
-    await IngredientServices.getIngredients()
+    await ShowServices.getShows()
       .then((response) => {
-        ingredients.value = response.data;
+        shows.value = response.data;
       })
       .catch((error) => {
         console.log(error);
@@ -45,8 +45,8 @@ async function getIngredients() {
   } 
 
 
-function navigateToSelectedShow(ingredient) { // can't use props here because this isn't the parent of SelectedShow?
-  router.push({ name: "selectedShow", params: { id: ingredient.id } }); // just push the ingredient through
+function navigateToSelectedShow(show) { // can't use props here because this isn't the parent of SelectedShow?
+  router.push({ name: "selectedShow", params: { id: show.id } }); // just push the show through
 }
 
 // Clicking an event will open a Card
@@ -56,10 +56,10 @@ function navigateToSelectedShow(ingredient) { // can't use props here because th
 <template>
   <h1> What's new? </h1>
   <Carousel id="carousel" v-bind="carouselConfig">
-    <Slide v-for="ingredient in ingredients" :key="ingredient.name"> <!-- iterate through events list -->
-          <div class="infoDiv" @click="navigateToSelectedShow(ingredient)">
+    <Slide v-for="show in shows" :key="show.name"> <!-- iterate through events list -->
+          <div class="infoDiv" @click="navigateToSelectedShow(show)">
       <img id="whatsNew" :src="'/default.png'" class="carousel__item" /> 
-      <h3> {{ ingredient.name }}</h3>
+      <h3> {{ show.name }}</h3>
       </div>
 
     </Slide>

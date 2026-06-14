@@ -1,20 +1,20 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import IngredientServices from "../services/IngredientServices.js";
-import RecipeIngredientServices from "../services/RecipeIngredientServices";
+import ShowServices from "../services/ShowServices.js";
+import RecipeShowServices from "../services/RecipeShowServices";
 import RecipeStepServices from "../services/RecipeStepServices";
 import RecipeServices from "../services/RecipeServices";
 
 const route = useRoute();
 
 const recipe = ref({});
-const ingredients = ref([]);
-const selectedIngredient = ref({});
-const recipeIngredients = ref([]);
+const shows = ref([]);
+const selectedShow = ref({});
+const recipeShows = ref([]);
 const recipeSteps = ref([]);
-const isAddIngredient = ref(false);
-const isEditIngredient = ref(false);
+const isAddShow = ref(false);
+const isEditShow = ref(false);
 const isAddStep = ref(false);
 const isEditStep = ref(false);
 const snackbar = ref({
@@ -27,20 +27,20 @@ const newStep = ref({
   stepNumber: undefined,
   instruction: undefined,
   recipeId: undefined,
-  recipeIngredient: [],
+  recipeShow: [],
 });
-const newIngredient = ref({
+const newShow = ref({
   id: undefined,
   quantity: undefined,
   recipeId: undefined,
   recipeStepId: undefined,
-  ingredientId: undefined,
+  showId: undefined,
 });
 
 onMounted(async () => {
   await getRecipe();
-  await getRecipeIngredients();
-  await getIngredients();
+  await getRecipeShows();
+  await getShows();
   await getRecipeSteps();
 });
 
@@ -70,10 +70,10 @@ async function updateRecipe() {
   await getRecipe();
 }
 
-async function getIngredients() {
-  await IngredientServices.getIngredients()
+async function getShows() {
+  await ShowServices.getShows()
     .then((response) => {
-      ingredients.value = response.data;
+      shows.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -83,26 +83,26 @@ async function getIngredients() {
     });
 }
 
-async function getRecipeIngredients() {
-  await RecipeIngredientServices.getRecipeIngredientsForRecipe(route.params.id)
+async function getRecipeShows() {
+  await RecipeShowServices.getRecipeShowsForRecipe(route.params.id)
     .then((response) => {
-      recipeIngredients.value = response.data;
+      recipeShows.value = response.data;
     })
     .catch((error) => {
       console.log(error);
     });
 }
 
-async function addIngredient() {
-  isAddIngredient.value = false;
-  newIngredient.value.recipeId = recipe.value.id;
-  newIngredient.value.ingredientId = selectedIngredient.value.id;
-  delete newIngredient.value.id;
-  await RecipeIngredientServices.addRecipeIngredient(newIngredient.value)
+async function addShow() {
+  isAddShow.value = false;
+  newShow.value.recipeId = recipe.value.id;
+  newShow.value.showId = selectedShow.value.id;
+  delete newShow.value.id;
+  await RecipeShowServices.addRecipeShow(newShow.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Ingredient added successfully!`;
+      snackbar.value.text = `Show added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -110,20 +110,20 @@ async function addIngredient() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getRecipeIngredients();
+  await getRecipeShows();
 }
 
-async function updateIngredient() {
-  isEditIngredient.value = false;
-  newIngredient.value.recipeId = recipe.value.id;
-  newIngredient.value.ingredientId = selectedIngredient.value.id;
-  console.log(newIngredient);
+async function updateShow() {
+  isEditShow.value = false;
+  newShow.value.recipeId = recipe.value.id;
+  newShow.value.showId = selectedShow.value.id;
+  console.log(newShow);
 
-  await RecipeIngredientServices.updateRecipeIngredient(newIngredient.value)
+  await RecipeShowServices.updateRecipeShow(newShow.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${selectedIngredient.value.name} updated successfully!`;
+      snackbar.value.text = `${selectedShow.value.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -131,15 +131,15 @@ async function updateIngredient() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getRecipeIngredients();
+  await getRecipeShows();
 }
 
-async function deleteIngredient(ingredient) {
-  await RecipeIngredientServices.deleteRecipeIngredient(ingredient)
+async function deleteShow(show) {
+  await RecipeShowServices.deleteRecipeShow(show)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${ingredient.ingredient.name} deleted successfully!`;
+      snackbar.value.text = `${show.show.name} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -147,25 +147,25 @@ async function deleteIngredient(ingredient) {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getRecipeIngredients();
+  await getRecipeShows();
 }
 
-async function checkUpdateIngredient() {
-  if (newStep.value.recipeIngredient.length > 0) {
-    console.log(newStep.value.recipeIngredient);
-    for (let i = 0; i < newStep.value.recipeIngredient.length; i++) {
-      newIngredient.value.id = newStep.value.recipeIngredient[i].id;
-      newIngredient.value.quantity = newStep.value.recipeIngredient[i].quantity;
-      newIngredient.value.recipeStepId = newStep.value.id;
-      selectedIngredient.value.id =
-        newStep.value.recipeIngredient[i].ingredientId;
-      await updateIngredient();
+async function checkUpdateShow() {
+  if (newStep.value.recipeShow.length > 0) {
+    console.log(newStep.value.recipeShow);
+    for (let i = 0; i < newStep.value.recipeShow.length; i++) {
+      newShow.value.id = newStep.value.recipeShow[i].id;
+      newShow.value.quantity = newStep.value.recipeShow[i].quantity;
+      newShow.value.recipeStepId = newStep.value.id;
+      selectedShow.value.id =
+        newStep.value.recipeShow[i].showId;
+      await updateShow();
     }
   }
 }
 
 async function getRecipeSteps() {
-  await RecipeStepServices.getRecipeStepsForRecipeWithIngredients(
+  await RecipeStepServices.getRecipeStepsForRecipeWithShows(
     route.params.id
   )
     .then((response) => {
@@ -194,7 +194,7 @@ async function addStep() {
       snackbar.value.text = error.response.data.message;
     });
 
-  await checkUpdateIngredient();
+  await checkUpdateShow();
 
   await getRecipeSteps();
 }
@@ -214,7 +214,7 @@ async function updateStep() {
       snackbar.value.text = error.response.data.message;
     });
 
-  await checkUpdateIngredient();
+  await checkUpdateShow();
 
   await getRecipeSteps();
 }
@@ -236,29 +236,29 @@ async function deleteStep(step) {
   await getRecipeSteps();
 }
 
-function openAddIngredient() {
-  newIngredient.value.id = undefined;
-  newIngredient.value.quantity = undefined;
-  newIngredient.value.recipeStepId = undefined;
-  newIngredient.value.ingredientId = undefined;
-  selectedIngredient.value = undefined;
-  isAddIngredient.value = true;
+function openAddShow() {
+  newShow.value.id = undefined;
+  newShow.value.quantity = undefined;
+  newShow.value.recipeStepId = undefined;
+  newShow.value.showId = undefined;
+  selectedShow.value = undefined;
+  isAddShow.value = true;
 }
 
-function openEditIngredient(ingredient) {
-  newIngredient.value.id = ingredient.id;
-  newIngredient.value.quantity = ingredient.quantity;
-  newIngredient.value.recipeStepId = ingredient.recipeStepId;
-  newIngredient.value.ingredientId = ingredient.ingredientId;
-  selectedIngredient.value = ingredient.ingredient;
-  isEditIngredient.value = true;
+function openEditShow(show) {
+  newShow.value.id = show.id;
+  newShow.value.quantity = show.quantity;
+  newShow.value.recipeStepId = show.recipeStepId;
+  newShow.value.showId = show.showId;
+  selectedShow.value = show.show;
+  isEditShow.value = true;
 }
 
 function openAddStep() {
   newStep.value.id = undefined;
   newStep.value.stepNumber = undefined;
   newStep.value.instruction = undefined;
-  newStep.value.recipeIngredient = [];
+  newStep.value.recipeShow = [];
   isAddStep.value = true;
 }
 
@@ -266,16 +266,16 @@ function openEditStep(step) {
   newStep.value.id = step.id;
   newStep.value.stepNumber = step.stepNumber;
   newStep.value.instruction = step.instruction;
-  newStep.value.recipeIngredient = step.recipeIngredient;
+  newStep.value.recipeShow = step.recipeShow;
   isEditStep.value = true;
 }
 
-function closeAddIngredient() {
-  isAddIngredient.value = false;
+function closeAddShow() {
+  isAddShow.value = false;
 }
 
-function closeEditIngredient() {
-  isEditIngredient.value = false;
+function closeEditShow() {
+  isEditShow.value = false;
 }
 
 function closeAddStep() {
@@ -352,43 +352,43 @@ function closeSnackBar() {
           <v-card-title
             ><v-row align="center">
               <v-col cols="10"
-                ><v-card-title class="headline">Ingredients </v-card-title>
+                ><v-card-title class="headline">Shows </v-card-title>
               </v-col>
               <v-col class="d-flex justify-end" cols="2">
-                <v-btn color="accent" @click="openAddIngredient()">Add</v-btn>
+                <v-btn color="accent" @click="openAddShow()">Add</v-btn>
               </v-col>
             </v-row>
           </v-card-title>
           <v-card-text>
             <v-list>
               <v-list-item
-                v-for="recipeIngredient in recipeIngredients"
-                :key="recipeIngredient.id"
+                v-for="recipeShow in recipeShows"
+                :key="recipeShow.id"
               >
                 <b
-                  >{{ recipeIngredient.quantity }}
+                  >{{ recipeShow.quantity }}
                   {{
-                    `${recipeIngredient.ingredient.unit}${
-                      recipeIngredient.quantity > 1 ? "s" : ""
+                    `${recipeShow.show.unit}${
+                      recipeShow.quantity > 1 ? "s" : ""
                     }`
                   }}</b
                 >
-                of {{ recipeIngredient.ingredient.name }} (${{
-                  recipeIngredient.ingredient.pricePerUnit
-                }}/{{ recipeIngredient.ingredient.unit }})
+                of {{ recipeShow.show.name }} (${{
+                  recipeShow.show.pricePerUnit
+                }}/{{ recipeShow.show.unit }})
                 <template v-slot:append>
                   <v-row>
                     <v-icon
                       class="mx-2"
                       size="x-small"
                       icon="mdi-pencil"
-                      @click="openEditIngredient(recipeIngredient)"
+                      @click="openEditShow(recipeShow)"
                     ></v-icon>
                     <v-icon
                       class="mx-2"
                       size="x-small"
                       icon="mdi-trash-can"
-                      @click="deleteIngredient(recipeIngredient)"
+                      @click="deleteShow(recipeShow)"
                     ></v-icon>
                   </v-row>
                 </template>
@@ -420,10 +420,10 @@ function closeSnackBar() {
                   <td>
                     <v-chip
                       size="small"
-                      v-for="ingredient in step.recipeIngredient"
-                      :key="ingredient.id"
+                      v-for="show in step.recipeShow"
+                      :key="show.id"
                       pill
-                      >{{ ingredient.ingredient.name }}</v-chip
+                      >{{ show.show.name }}</v-chip
                     >
                   </td>
                   <td>
@@ -450,22 +450,22 @@ function closeSnackBar() {
 
     <v-dialog
       persistent
-      :model-value="isAddIngredient || isEditIngredient"
+      :model-value="isAddShow || isEditShow"
       width="800"
     >
       <v-card class="rounded-lg elevation-5">
         <v-card-title class="headline mb-2">{{
-          isAddIngredient
-            ? "Add Ingredient"
-            : isEditIngredient
-            ? "Edit Ingredient"
+          isAddShow
+            ? "Add Show"
+            : isEditShow
+            ? "Edit Show"
             : ""
         }}</v-card-title>
         <v-card-text>
           <v-row>
             <v-col cols="3">
               <v-text-field
-                v-model="newIngredient.quantity"
+                v-model="newShow.quantity"
                 label="Quantity"
                 type="number"
                 required
@@ -475,21 +475,21 @@ function closeSnackBar() {
 
             <v-col>
               <v-select
-                v-model="selectedIngredient"
-                :items="ingredients"
+                v-model="selectedShow"
+                :items="shows"
                 item-title="name"
                 item-value="unit"
-                label="Ingredients"
+                label="Shows"
                 return-object
                 required
               >
                 <template v-slot:prepend>
                   {{
                     `${
-                      selectedIngredient && selectedIngredient.unit
-                        ? selectedIngredient.unit
+                      selectedShow && selectedShow.unit
+                        ? selectedShow.unit
                         : ""
-                    }${newIngredient.quantity > 1 ? "s" : ""}`
+                    }${newShow.quantity > 1 ? "s" : ""}`
                   }}
                   of
                 </template>
@@ -503,10 +503,10 @@ function closeSnackBar() {
             variant="flat"
             color="secondary"
             @click="
-              isAddIngredient
-                ? closeAddIngredient()
-                : isEditIngredient
-                ? closeEditIngredient()
+              isAddShow
+                ? closeAddShow()
+                : isEditShow
+                ? closeEditShow()
                 : false
             "
             >Close</v-btn
@@ -515,17 +515,17 @@ function closeSnackBar() {
             variant="flat"
             color="primary"
             @click="
-              isAddIngredient
-                ? addIngredient()
-                : isEditIngredient
-                ? updateIngredient()
+              isAddShow
+                ? addShow()
+                : isEditShow
+                ? updateShow()
                 : false
             "
             >{{
-              isAddIngredient
-                ? "Add Ingredient"
-                : isEditIngredient
-                ? "Update Ingredient"
+              isAddShow
+                ? "Add Show"
+                : isEditShow
+                ? "Update Show"
                 : ""
             }}</v-btn
           >
@@ -553,11 +553,11 @@ function closeSnackBar() {
           ></v-textarea>
 
           <v-select
-            v-model="newStep.recipeIngredient"
-            :items="recipeIngredients"
-            item-title="ingredient.name"
+            v-model="newStep.recipeShow"
+            :items="recipeShows"
+            item-title="show.name"
             item-value="id"
-            label="Ingredients"
+            label="Shows"
             return-object
             multiple
             chips

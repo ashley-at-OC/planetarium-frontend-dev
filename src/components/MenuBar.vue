@@ -55,7 +55,7 @@ function navigateToPurchases() {
       <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
         Login
       </v-btn>
-      <v-btn v-else class="mx-2" :to="{ name: 'ingredients' }"> <!-- WIP: need to change to only appear for system admin accounts -->
+      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'shows' }">
         Management
       </v-btn>
 

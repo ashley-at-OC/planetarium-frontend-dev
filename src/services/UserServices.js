@@ -1,12 +1,31 @@
 import apiClient from "./services";
 
 export default {
-  getUser() {
-    return apiClient.get("users");
+
+
+
+
+  getUser(id) // not sure why the original getUser was for all users? Adding new getUser for a single user
+  {
+    return apiClient.get("users/" + id);
+  },
+
+  getUsers() { // 
+    return apiClient.get("users/");
   },
   addUser(user) {
-    return apiClient.post("users", user);
+    return apiClient.post("users/", user);
   },
+
+  updateUser(user) {
+    return apiClient.put("users/" + user.id, user);
+
+  },
+
+  deleteUser(id) {
+    return apiClient.delete("users/" + id)
+  },
+
   loginUser(user) {
     console.log(user);
     return apiClient.post("login", user.value, {

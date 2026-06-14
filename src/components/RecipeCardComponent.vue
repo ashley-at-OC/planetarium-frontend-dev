@@ -1,14 +1,14 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import RecipeIngredientServices from "../services/RecipeIngredientServices.js";
+import RecipeShowServices from "../services/RecipeShowServices.js";
 import RecipeStepServices from "../services/RecipeStepServices";
 import RecipeReports from "../reports/RecipeReports.js";
 
 const router = useRouter();
 
 const showDetails = ref(false);
-const recipeIngredients = ref([]);
+const recipeShows = ref([]);
 const recipeSteps = ref([]);
 const user = ref(null);
 
@@ -19,15 +19,15 @@ const props = defineProps({
 });
 
 onMounted(async () => {
-  await getRecipeIngredients();
+  await getRecipeShows();
   await getRecipeSteps();
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
-async function getRecipeIngredients() {
-  await RecipeIngredientServices.getRecipeIngredientsForRecipe(props.recipe.id)
+async function getRecipeShows() {
+  await RecipeShowServices.getRecipeShowsForRecipe(props.recipe.id)
     .then((response) => {
-      recipeIngredients.value = response.data;
+      recipeShows.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -35,7 +35,7 @@ async function getRecipeIngredients() {
 }
 
 async function getRecipeSteps() {
-  await RecipeStepServices.getRecipeStepsForRecipeWithIngredients(
+  await RecipeStepServices.getRecipeStepsForRecipeWithShows(
     props.recipe.id
   )
     .then((response) => {
@@ -90,23 +90,23 @@ function navigateToEdit() {
     </v-card-text>
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
-        <h3>Ingredients</h3>
+        <h3>Shows</h3>
         <v-list>
           <v-list-item
-            v-for="recipeIngredient in recipeIngredients"
-            :key="recipeIngredient.id"
+            v-for="recipeShow in recipeShows"
+            :key="recipeShow.id"
           >
             <b
-              >{{ recipeIngredient.quantity }}
+              >{{ recipeShow.quantity }}
               {{
-                `${recipeIngredient.ingredient.unit}${
-                  recipeIngredient.quantity > 1 ? "s" : ""
+                `${recipeShow.show.unit}${
+                  recipeShow.quantity > 1 ? "s" : ""
                 }`
               }}</b
             >
-            of {{ recipeIngredient.ingredient.name }} (${{
-              recipeIngredient.ingredient.pricePerUnit
-            }}/{{ recipeIngredient.ingredient.unit }})
+            of {{ recipeShow.show.name }} (${{
+              recipeShow.show.pricePerUnit
+            }}/{{ recipeShow.show.unit }})
           </v-list-item>
         </v-list>
         <h3>Recipe Steps</h3>
@@ -115,7 +115,7 @@ function navigateToEdit() {
             <tr>
               <th class="text-left">Step</th>
               <th class="text-left">Instruction</th>
-              <th class="text-left">Ingredients</th>
+              <th class="text-left">Shows</th>
             </tr>
           </thead>
           <tbody>
@@ -125,10 +125,10 @@ function navigateToEdit() {
               <td>
                 <v-chip
                   size="small"
-                  v-for="ingredient in step.recipeIngredient"
-                  :key="ingredient.id"
+                  v-for="show in step.recipeShow"
+                  :key="show.id"
                   pill
-                  >{{ ingredient.ingredient.name }}</v-chip
+                  >{{ show.show.name }}</v-chip
                 >
               </td>
             </tr>
