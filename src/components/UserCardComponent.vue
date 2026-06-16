@@ -1,22 +1,29 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import RecipeReports from "../reports/RecipeReports.js";
-import ShowtimeServices from "../services/ShowtimeServices.js";
-import ShowServices from "../services/ShowServices.js";
+import BookingServices from "../services/BookingServices.js";
 import UserServices from "../services/UserServices.js";
+import PaymentTable from "./PaymentTable.vue";
+
 
 const props = defineProps({ // props only works for components within a View (parent --> child)
-   show: { required: true }
+   user: { required: true }
 });
 
-const show = ref(props.show);  // change to user
+
+// user -> booking -> payment
+
+const user = ref(props.user);  // change to user
 const isEdit = ref(false);
 const isAdd = ref(false);
 const currentUser = ref(null);
 const router = useRouter();
-const showtimes = ref([]);
-const showDetails = ref(false); // expanded or not expanded
+const bookings = ref([]);
+
+
+
+
+const userDetails = ref(false); // expanded or not expanded
 const snackbar = ref({
   value: false,
   color: "",
@@ -24,22 +31,33 @@ const snackbar = ref({
 });
 
 
+const newBooking = ref(
+  {
+    id: undefined,
+    userId: user.value.id,
+    bookingStatus: undefined,
+    totalPrice: undefined,
+  }
+)
+
+
 onMounted(async () => {
-  console.log("USER ID:", show.value.id);
-  getShowtimes();
+  console.log("USER ID:", user.value.id);
+  getBookingsByUserId(user.value.id); 
+
   currentUser.value = JSON.parse(localStorage.getItem("user"));
 });
 
 
-// ---------------------- Showtime functions --------------------------------------
+// ---------------------- Booking functions --------------------------------------
 
 
 // opening the dialog
 function openAdd() {
-  newShowtime.value.startDateTime = "";
-  newShowtime.value.endDateTime = "";
-  newShowtime.value.attendeeCount = undefined;
-  newShowtime.value.isActive = false;
+  newBooking.value.startDateTime = "";
+  newBooking.value.endDateTime = "";
+  newBooking.value.attendeeCount = undefined;
+  newBooking.value.isActive = false;
   isAdd.value = true;
 }
 
@@ -47,16 +65,16 @@ function closeAdd() {
   isAdd.value = false;
 }
 
-async function addShowtime() {
+async function addBooking() {
   isAdd.value = false;
-  newShowtime.value.showId = show.value.id; // redundant but just in case
-  console.log("AddShowtime:", newShowtime.value);
+  newBooking.value.userId = user.value.id; // redundant but just in case
+  console.log("AddBooking:", newBooking.value);
 
-  await ShowtimeServices.addShowtime(newShowtime.value)
+  await BookingServices.addBooking(newBooking.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newShowtime.value.name} added successfully!`;
+      snackbar.value.text = `${newBooking.value.name} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -64,19 +82,19 @@ async function addShowtime() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getShowtimes();
+  await getBookingsByUserId(user.value.id); 
 }
 
 
 
-async function editShowtime() {
+async function editBooking() {
   isEdit.value = false; // closes the dialog pop-up
-  newShowtime.value.showId = show.value.id; // redundant but just in case
-  await ShowtimeServices.updateShowtime(newShowtime.value)
+  newBooking.value.userId = user.value.id; // redundant but just in case
+  await BookingServices.updateBooking(newBooking.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newShowtime.value.name} editted successfully!`; 
+      snackbar.value.text = `${newBooking.value.name} editted successfully!`; 
     })
     .catch((error) => {
       console.log(error);
@@ -84,18 +102,34 @@ async function editShowtime() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getShowtimes();
+  await getBookingsByUserId(user.value.id); 
 }
 
+/*
 
-// for Showtime, Show gets editted elsewhere
+*/
+
+
+
+// still needs to be updated to Booking + Transactions
+async function getBookingsByUserId() {
+    await BookingServices.getBookingsByUserId(user.value.id)
+      .then((response) => {
+        bookings.value = response.data;
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  } 
+
+// for Booking, Show gets editted elsewhere
 function openEdit(item) {
-  newShowtime.value.id = item.id;
-  newShowtime.value.showId = item.showId;
-  newShowtime.value.startDateTime = item.startDateTime;
-  newShowtime.value.endDateTime = item.endDateTime;
-  newShowtime.value.attendeeCount = item.attendeeCount;
-  newShowtime.value.isActive = item.isActive;
+  newBooking.value.id = item.id;
+  newBooking.value.userId = item.userId;
+  newBooking.value.startDateTime = item.startDateTime;
+  newBooking.value.endDateTime = item.endDateTime;
+  newBooking.value.attendeeCount = item.attendeeCount;
+  newBooking.value.isActive = item.isActive;
   isEdit.value = true;
 }
 
@@ -104,22 +138,12 @@ function closeEdit() {
 }
 
 
-// still needs to be updated to Booking + Transactions
-async function getShowtimes() {
-    await ShowtimeServices.getShowtimesForShow(show.value.id)
-      .then((response) => {
-        showtimes.value = response.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  } 
 
 
 
   
 async function deleteUser() { // still on Show functions
-  await UserServices.deleteUser(show.value.id)
+  await UserServices.deleteUser(user.value.id)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -132,18 +156,18 @@ async function deleteUser() { // still on Show functions
       snackbar.value.text = error.response.data.message;
     });
 
-  await getShows();
+ await getUsers();
 }
 
 
-// directly pass item into deleteShowtime since there is no specific showtime ref
+// directly pass item into deleteBooking since there is no specific booking ref
 
-async function deleteShowtime(item) { // still on Show functions
-  await ShowtimeServices.deleteShowtime(item)
+async function deleteBooking(item) { // still on Show functions
+  await BookingServices.deleteBooking(item)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Showtime deleted successfully!`;
+      snackbar.value.text = `Booking deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -152,19 +176,19 @@ async function deleteShowtime(item) { // still on Show functions
       snackbar.value.text = error.response.data.message;
     });
 
-  await getShowtimesForShow();
+  await getBookingsByUserId(user.value.id); 
 }
 
 
 
 function navigateToEdit() {
 
-  console.log("SHOW:", show);
-  console.log("SHOW ID:", show.value.id);
+  console.log("SHOW:", user);
+  console.log("SHOW ID:", user.value.id);
   // console.log("SHOW ID:", show.id);
 
 
- router.push({ name: "editUser", params: { id: show.value.id } });
+ router.push({ name: "editUser", params: { id: user.value.id } });
 
 }
 
@@ -181,25 +205,21 @@ function closeSnackBar() {
 <template>
   <v-card
     class="rounded-lg elevation-5 mb-8"
-    @click="showDetails = !showDetails"
+    @click="userDetails = !userDetails"
   >
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          ID {{ show.firstName }} {{ show.lastName }}
+          ID {{ user.firstName }} {{ user.lastName }}
           <!-- change color of chip for different user types? -->
           <v-chip class="ma-2" color="blue" label>
             <v-icon start icon="mdi-account-circle"></v-icon>
-            {{ show.role }} 
+            {{ user.role }} 
           </v-chip>
           
         </v-col>
-        <v-col class="d-flex justify-end">
-              <v-icon 
-              size="small"
-              icon="mdi-plus" class="ml-2" 
-              @click="openAdd()">
-            </v-icon>
+        <v-col>
+    
 
           <v-icon
             v-if="currentUser !== null"
@@ -211,7 +231,7 @@ function closeSnackBar() {
             v-if="currentUser !== null"
             size="small"
             icon="mdi-delete"
-            @click.stop="deleteUser(item)"
+            @click.stop="deleteUser()"
           ></v-icon>
         </v-col>
 
@@ -220,8 +240,8 @@ function closeSnackBar() {
 
     <v-expand-transition>
        
-      <v-card-text class="pt-0" v-show="showDetails">
-         {{ show.email }}
+      <v-card-text class="pt-0" v-show="userDetails">
+         {{ user.email }}
 
          <v-table>
         <thead>
@@ -236,12 +256,12 @@ function closeSnackBar() {
         </thead>
         <tbody>
           <tr>
-            <td>{{ show.id }}</td>
-            <td>{{ show.firstName }}</td>
-            <td>{{ show.lastName }}</td>
-            <td>{{ show.email }}</td>
-            <td>{{ show.createdAt}}</td>
-            <td>{{ show.updatedAt }}</td>
+            <td>{{ user.id }}</td>
+            <td>{{ user.firstName }}</td>
+            <td>{{ user.lastName }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.createdAt}}</td>
+            <td>{{ user.updatedAt }}</td>
           </tr>
 
           </tbody>
@@ -251,89 +271,92 @@ function closeSnackBar() {
         <br>
         <hr>
         <br>
-        <h3>Accounts</h3>
 
-         <v-card-text class="body-1">
 
-    </v-card-text>
-        
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-left">ID</th>
-            <th class="text-left">Show ID</th>
-            <th class="text-left">Start datetime</th>
-            <th class="text-left">End datetime</th>
-            <th class="text-left">Attendee Count</th>
-            <th class="text-left">Active?</th>
-            <th class="text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in showtimes" :key="item.id">
-            <td>{{ item.id }}</td>
-            <td>{{ item.showId }}</td>
-            <td>{{ item.startDateTime }}</td>
-            <td>{{ item.endDateTime }}</td>
-            <td>{{ item.attendeeCount }}</td>
-            <td>{{ item.isActive }}</td>
-            <td>
-              <v-icon
-                size="small"
-                icon="mdi-pencil"
-                @click="openEdit(item)"
-              ></v-icon>
-              <v-icon 
+        <v-row>
+            <v-col class="d-flex justify-center">
+        <h3>Bookings</h3>
+
+               <v-icon 
               size="small"
-              icon="mdi-delete" class="ml-2" 
-              @click.stop="deleteShowtime(item)">
+              icon="mdi-plus" class="ml-2" 
+              @click="openAdd()">
             </v-icon>
-  
-            </td>
-          
-   
+        <v-table>
+          <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+              <th>Status</th>
+              <th>Total Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in bookings" :key="item.id">
+              <td>{{ item.id }}</td>
+              <td>{{ item.userId }}</td>
+              <td>{{ item.bookingStatus }}</td>
+              <td>{{ item.totalPrice }}</td>
 
-          </tr>
-        </tbody>
-      </v-table>
+              <td>
+                  <v-icon size="small" icon="mdi-pencil" @click="openEdit(item)" />
+                <v-icon size="small" icon="mdi-delete" class="ml-2" @click.stop="deleteBooking(item)" />
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
 
+        
+      </v-col>
+
+        <v-col cols="6">
+          <h3>Payments</h3>
+    <v-table>
+     <thead>
+         <tr>
+              <th>ID</th>
+              <th>Booking ID</th>
+              <th>Method</th>
+              <th>Status</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+       <tbody>
+  <PaymentTable v-for="item in bookings" :key="item.id" :booking="item" />
+</tbody>
+        </v-table>
+    
+        </v-col>
+
+        </v-row>
+
+
+    
 
        <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add a new Showtime </v-card-title>
+          <v-card-title class="headline mb-2">Add a new Booking </v-card-title>
           <v-card-text>
+  
             <v-text-field
-              v-model="newShowtime.startDateTime"
-              label="Start datetime"
-              type="datetime-local"
-              required
+              v-model.number="newBooking.bookingStatus"
+              label="Booking Status"
             ></v-text-field>
-
-            <v-text-field
-              v-model="newShowtime.endDateTime"
-              label="End datetime"
-              type="datetime-local"
-              required
-            ></v-text-field>
-            <v-text-field
-              v-model.number="newShowtime.attendeeCount"
-              label="Attendee Count"
+              <v-text-field
+              v-model.number="newBooking.totalPrice"
+              label="Total Price"
               type="number"
             ></v-text-field>
-            <!-- binded to a boolean by default -->
-            <v-switch  
-              v-model="newShowtime.isActive"
-              hide-details
-              inset
-              :label="`Active? ${newShowtime.isActive ? 'Yes' : 'No'}`"
-            ></v-switch>
+    
+      
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="flat" color="secondary" @click="closeAdd()"
               >Close</v-btn
             >
-            <v-btn variant="flat" color="primary" @click="addShowtime()"
+            <v-btn variant="flat" color="primary" @click="addBooking()"
               >Save</v-btn
             >
           </v-card-actions>
@@ -342,43 +365,43 @@ function closeSnackBar() {
 
 
 
-      <!-- Edit Showtime -->
+      <!-- Edit Booking -->
        <v-dialog persistent v-model="isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
           <v-card-title class="headline mb-2"> Edit User </v-card-title>
           <v-card-text>
             <v-text-field
-              v-model="newShowtime.startDateTime"
-              label="Start datetime"
+              v-model="newBooking.id"
+              label="ID"
               type="datetime-local"
               required
             ></v-text-field>
 
             <v-text-field
-              v-model="newShowtime.endDateTime"
-              label="End datetime"
+              v-model="newBooking.userId"
+              label="User ID"
               type="datetime-local"
               required
             ></v-text-field>
             <v-text-field
-              v-model.number="newShowtime.attendeeCount"
-              label="Attendee Count"
+              v-model.number="newBooking.totalPrice"
+              label="Total price"
               type="number"
             ></v-text-field>
-            <!-- binded to a boolean by default -->
-            <v-switch  
-              v-model="newShowtime.isActive"
-              hide-details
-              inset
-              :label="`Active? ${newShowtime.isActive ? 'Yes' : 'No'}`"
-            ></v-switch>
+
+            <v-text-field
+              v-model.number="newBooking.bookingStatus"
+              label="Total price"
+              type="number"
+            ></v-text-field>
+
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="flat" color="secondary" @click="closeEdit()"
               >Close</v-btn
             >
-            <v-btn variant="flat" color="primary" @click="editShowtime()"
+            <v-btn variant="flat" color="primary" @click="editBooking()"
               >Save</v-btn
             >
           </v-card-actions>
@@ -405,5 +428,4 @@ function closeSnackBar() {
     </v-snackbar>
 
 </template>
-
 
