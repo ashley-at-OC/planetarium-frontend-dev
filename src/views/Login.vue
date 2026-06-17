@@ -99,6 +99,7 @@ function closeSnackBar() {
           <v-text-field
             v-model="user.password"
             label="Password"
+            type="password"
             required
           ></v-text-field>
         </v-card-text>
@@ -150,6 +151,7 @@ function closeSnackBar() {
             <v-text-field
               v-model="user.password"
               label="Password"
+              type="password"
               required
             ></v-text-field>
           </v-card-text>

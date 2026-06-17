@@ -105,10 +105,10 @@ async function getShowtimes() {
 
 </div>
 
-<!--<button id="getTicketsButton" @click="goToSeatMap"> View show </button>-->
+<!-- <button id="getTicketsButton" @click="goToSeatMap"> View show </button> -->
   
 <div id="buttonList"> 
-  <button id="showtimeButton" v-for="showtime in showtimes" :key="showtime.id" @click="goToSeatMap"> <!-- needs to pass in a prop later -->
+  <button id="showtimeButton" v-for="showtime in showtimes" :key="showtime.id" @click="goToSeatMap"> 
   <h3> {{ showtime.formattedTime }}</h3>
 </button>
 </div>

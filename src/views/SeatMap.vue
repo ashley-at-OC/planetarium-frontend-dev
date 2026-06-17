@@ -21,7 +21,7 @@ onMounted(async () => {
     const response = await SeatServices.getSeats();
     const seats = response.data;
 
-    // Look up the show fromSelectedShow.vue). Fall back to $15 if it fails.
+    // Look up the show fromSelectedShow.vue. Fall back to $15 if it fails.
     let seatPrice = 15;
     const selectedShowId = localStorage.getItem("selectedShowId");
     if (selectedShowId) {
@@ -30,9 +30,11 @@ onMounted(async () => {
           selectedShowId
         );
         const show = Array.isArray(showResponse.data)
-          ? showResponse.data[0]
-          : showResponse.data;
-        if (show?.price) seatPrice = Number(show.price);
+          // If true the backend returns an array, take the first element. If false take the object directly. (Conditional)
+          ? showResponse.data[0] : showResponse.data;
+          // If show is null, show?.price becomes undefined, the condition is false, seatPrice is not updated.
+          // If a valid price exists, set seatPrice = show.price as Number for seat chart. (Optional Chaining).
+        if (show?.price) seatPrice = Number(show.price);  
       } catch (showError) {
         console.log("Could not load show price; using fallback.", showError);
       }
@@ -41,15 +43,19 @@ onMounted(async () => {
     // Pull out the handicap seats so we can pass them to SeatChart.js as a
     // special seat type. Subtract 1 from the backend to match the SeatChart library.
     const handicapSeats = seats
-      .filter((s) => s.seatType === "handicap")
+    // Filters through the backend seat list array and only keeps the seats where s.seatType equals "handicap".
+      .filter((s) => s.seatType === "handicap") 
       .map((s) => ({ row: rowToIndex(s.seatRow), col: s.seatColumn - 1 }));
 
     // Build the reserved seat list from the backend's isBooked flag.
     const reservedSeats = seats
+   // Filters through the seat list array and only keeps the seats where s.isBooked is true.
       .filter((s) => s.isBooked)
       .map((s) => ({ row: rowToIndex(s.seatRow), col: s.seatColumn - 1 }));
 
     // Compute grid size from the data.
+    // Iterate through the seat list to find the max row and column.
+    // Use ... to spread seat list into individual numbers to feed into Math.max which pulls the largest number.
     const rows = Math.max(...seats.map((s) => rowToIndex(s.seatRow))) + 1;
     const columns = Math.max(...seats.map((s) => s.seatColumn));
 
