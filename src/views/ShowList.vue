@@ -307,7 +307,7 @@ function closeSnackBar() {
       <UserCardComponent
         v-for="account in users" 
         :key="account.id"
-        :show="account"
+        :user="account"
         @deletedList="getUsers()"
       />
 
