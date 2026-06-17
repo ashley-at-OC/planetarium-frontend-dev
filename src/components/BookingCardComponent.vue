@@ -2,20 +2,20 @@
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import RecipeReports from "../reports/RecipeReports.js";
-import ShowtimeServices from "../services/ShowtimeServices.js";
-import ShowServices from "../services/ShowServices.js";
+import PaymentServices from "../services/PaymentServices.js";
+import BookingServices from "../services/BookingServices.js";
 
 const props = defineProps({ // props only works for components within a View (parent --> child)
-   show: { required: true }
+   booking: { required: true }
 });
 
-const show = ref(props.show);
+const booking = ref(props.booking);
 const isEdit = ref(false);
 const isAdd = ref(false);
 const user = ref(null);
 const router = useRouter();
-const showtimes = ref([]);
-const showDetails = ref(false); // expanded or not expanded
+const payments = ref([]);
+const bookingDetails = ref(false); // expanded or not expanded
 const snackbar = ref({
   value: false,
   color: "",
@@ -23,32 +23,41 @@ const snackbar = ref({
 });
 
 
+
+
 onMounted(async () => {
-   console.log("Show ID:", show.value.id);
-  getShowtimes();
-  user.value = JSON.parse(localStorage.getItem("user"));
+    await getPayments();
+    user.value = JSON.parse(localStorage.getItem("user"));
 });
 
 
-// ---------------------- Showtime functions --------------------------------------
 
-const newShowtime = ref({
+
+
+
+// ---------------------- Payment functions --------------------------------------
+
+
+
+
+
+
+const newPayment = ref({
   id: undefined,
-  showId: show.value.id,
-  startDateTime: undefined,
-  endDateTime: undefined,
-  attendeeCount: undefined,
-  isActive: undefined,
+  bookingId: undefined,
+  paymentStatus: undefined,
+  paymentMethod: undefined,
+  amount: undefined,
+
 });
 
 
 
 // opening the dialog
 function openAdd() {
-  newShowtime.value.startDateTime = "";
-  newShowtime.value.endDateTime = "";
-  newShowtime.value.attendeeCount = undefined;
-  newShowtime.value.isActive = false;
+  newPayment.value.paymentStatus = "";
+  newPayment.value.paymentMethod = "";
+  newPayment.value.amount = undefined;
   isAdd.value = true;
 }
 
@@ -56,16 +65,16 @@ function closeAdd() {
   isAdd.value = false;
 }
 
-async function addShowtime() {
+async function addPayment() {
   isAdd.value = false;
-  newShowtime.value.showId = show.value.id; // redundant but just in case
-  console.log("AddShowtime:", newShowtime.value);
+  newPayment.value.bookingId = booking.value.id; // redundant but just in case
+  console.log("Add Payment:", newPayment.value);
 
-  await ShowtimeServices.addShowtime(newShowtime.value)
+  await PaymentServices.addPayment(newPayment.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newShowtime.value.name} added successfully!`;
+      snackbar.value.text = `Payment #${newPayment.value.id} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -73,19 +82,20 @@ async function addShowtime() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getShowtimes();
+  await getPayments();
 }
 
 
 
-async function editShowtime() {
+async function editPayment() {
   isEdit.value = false; // closes the dialog pop-up
-  newShowtime.value.showId = show.value.id; // redundant but just in case
-  await ShowtimeServices.updateShowtime(newShowtime.value)
+  newPayment.value.bookingId = booking.value.id; // redundant but just in case
+  console.log("NEW PAYMENT " + newPayment.value.id);
+  await PaymentServices.updatePayment(newPayment.value.id, newPayment.value)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newShowtime.value.id} editted successfully!`; 
+      snackbar.value.text = `${newPayment.value.id} editted successfully!`; 
     })
     .catch((error) => {
       console.log(error);
@@ -93,18 +103,17 @@ async function editShowtime() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  await getShowtimes();
+  await getPayments();
 }
 
 
-// for Showtime, Show gets editted elsewhere
+// for Payment, Booking gets editted elsewhere
 function openEdit(item) {
-  newShowtime.value.id = item.id;
-  newShowtime.value.showId = item.showId;
-  newShowtime.value.startDateTime = item.startDateTime;
-  newShowtime.value.endDateTime = item.endDateTime;
-  newShowtime.value.attendeeCount = item.attendeeCount;
-  newShowtime.value.isActive = item.isActive;
+  newPayment.value.id = item.id;
+  newPayment.value.bookingId = item.bookingId;
+  newPayment.value.paymentStatus = item.paymentStatus;
+  newPayment.value.paymentMethod = item.paymentMethod;
+  newPayment.value.amount = item.amount;
   isEdit.value = true;
 }
 
@@ -114,25 +123,23 @@ function closeEdit() {
 
 
 
-async function getShowtimes() {
-    await ShowtimeServices.getShowtimesForShow(show.value.id)
+async function getPayments() {
+    await PaymentServices.getPaymentsForBooking(booking.value.id)
       .then((response) => {
-        showtimes.value = response.data;
+        payments.value = response.data;
       })
       .catch((error) => {
         console.log(error);
       });
   } 
 
-
-
   
-async function deleteShow() { // still on Show functions
-  await ShowServices.deleteShow(show.value.id)
+async function deleteBooking() { // still on Booking functions
+  await BookingServices.deleteBooking(booking.value.id)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Show deleted successfully!`;
+      snackbar.value.text = `Booking deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -141,18 +148,18 @@ async function deleteShow() { // still on Show functions
       snackbar.value.text = error.response.data.message;
     });
 
-  await getShows();
+  await getBookings();
 }
 
 
-// directly pass item into deleteShowtime since there is no specific showtime ref
+// directly pass item into deletePayment since there is no specific payment ref
 
-async function deleteShowtime(item) { // still on Show functions
-  await ShowtimeServices.deleteShowtime(item)
+async function deletePayment(item) { // still on Booking functions
+  await PaymentServices.deletePayment(item.id)
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Showtime deleted successfully!`;
+      snackbar.value.text = `Payment deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -161,13 +168,13 @@ async function deleteShowtime(item) { // still on Show functions
       snackbar.value.text = error.response.data.message;
     });
 
-  await getShowtimesForShow();
+  await getPayments();
 }
 
 
 
 function navigateToEdit() {
-  router.push({ name: "editShow", params: { id: show.value.id } });
+  router.push({ name: "editBooking", params: { id: booking.value.id } });
 }
 
 
@@ -183,19 +190,19 @@ function closeSnackBar() {
 <template>
   <v-card
     class="rounded-lg elevation-5 mb-8"
-    @click="showDetails = !showDetails"
+    @click="bookingDetails = !bookingDetails"
   >
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          ID {{ show.id }} - {{ show.name }}
+          ID {{ booking.id }} - {{ booking.name }}
           <v-chip class="ma-2" color="primary" label>
             <v-icon start icon="mdi-cash"></v-icon>
-            ${{ show.price }} 
+            ${{ booking.price }} 
           </v-chip>
           <v-chip class="ma-2" color="accent" label>
             <v-icon start icon="mdi-clock-outline"></v-icon>
-            {{ show.durationMinutes }} minutes
+            {{ booking.durationMinutes }} minutes
           </v-chip>
         </v-col>
         <v-col class="d-flex justify-end">
@@ -215,7 +222,7 @@ function closeSnackBar() {
             v-if="user !== null"
             size="small"
             icon="mdi-delete"
-            @click.stop="deleteShow(item)"
+            @click.stop="deleteBooking(item)"
           ></v-icon>
         </v-col>
       </v-row>
@@ -223,32 +230,38 @@ function closeSnackBar() {
 
     <v-expand-transition>
        
-      <v-card-text class="pt-0" v-show="showDetails">
+      <v-card-text class="pt-0" v-show="bookingDetails">
     <v-table>
         <thead>
           <tr>
             <th class="text-left">ID</th>
-            <th class="text-left">Name</th>
-            <th class="text-left">Price</th>
+            <th class="text-left">User Id</th>
+            <th class="text-left">Status</th>
+            <th class="text-left">Total Price</th>
             <th class="text-left">Created At</th>
             <th class="text-left">Updated At</th>
-    
-            <th class="text-left">Description</th>
+            <th class="text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>{{ show.id }}</td>
-            <td>{{ show.name }}</td>
-            <td>{{ show.price}}</td>
-            <td>{{ show.createdAt}}</td>
-            <td>{{ show.updatedAt }}</td>
-            <td>{{ show.description }}</td>
+            <td>{{ booking.id }}</td>
+            <td>{{ booking.userId }}</td>
+            <td>{{ booking.bookingStatus }}</td>
+            <td>{{ booking.totalPrice}}</td>
+            <td>{{ booking.createdAt}}</td>
+            <td>{{ booking.updatedAt }}</td>
           </tr>
 
           </tbody>
       </v-table>
 
+      <!-- id            | int                                                     | NO   | PRI | NULL    | auto_increment |
+| bookingStatus | enum('pending','paid','cancelled','refunded','expired') | NO   |     | pending |                |
+| totalPrice    | decimal(8,2)                                            | NO   |     | 0.00    |                |
+| createdAt     | datetime                                                | NO   |     | NULL    |                |
+| updatedAt     | datetime                                                | NO   |     | NULL    |                |
+| userId   -->
 
 
 
@@ -256,28 +269,29 @@ function closeSnackBar() {
 
 
         <!-- how do I make this bold -->
-        <h1>Showtime</h1>
+        <h1>Payment</h1>
 
       <v-table>
         <thead>
           <tr>
-            <th class="text-left">Showtime ID</th>
-            <th class="text-left">Show ID</th>
-            <th class="text-left">Start datetime</th>
-            <th class="text-left">End datetime</th>
-            <th class="text-left">Attendee Count</th>
-            <th class="text-left">Active?</th>
+            <th class="text-left">Payment ID</th>
+            <th class="text-left">Booking ID</th>
+            <th class="text-left">Payment Method</th>
+            <th class="text-left">Payment Status</th>
+            <th class="text-left">Amount</th>
             <th class="text-left">Actions</th>
+ 
+ 
+ 
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in showtimes" :key="item.id">
+          <tr v-for="item in payments" :key="item.id">
             <td>{{ item.id }}</td>
-            <td>{{ item.showId }}</td>
-            <td>{{ item.startDateTime }}</td>
-            <td>{{ item.endDateTime }}</td>
-            <td>{{ item.attendeeCount }}</td>
-            <td>{{ item.isActive }}</td>
+            <td>{{ item.bookingId }}</td>
+            <td>{{ item.paymentStatus }}</td>
+            <td>{{ item.paymentMethod }}</td>
+            <td>{{ item.amount }}</td>
             <td>
               <v-icon
                 size="small"
@@ -287,7 +301,7 @@ function closeSnackBar() {
               <v-icon 
               size="small"
               icon="mdi-delete" class="ml-2" 
-              @click.stop="deleteShowtime(item)">
+              @click.stop="deletePayment(item)">
             </v-icon>
   
             </td>
@@ -301,40 +315,34 @@ function closeSnackBar() {
 
        <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add a new Showtime </v-card-title>
+          <v-card-title class="headline mb-2">Add a new Payment </v-card-title>
           <v-card-text>
             <v-text-field
-              v-model="newShowtime.startDateTime"
-              label="Start datetime"
-              type="datetime-local"
+              v-model="newPayment.paymentStatus"
+              label="Payment Status"
+    
               required
             ></v-text-field>
 
             <v-text-field
-              v-model="newShowtime.endDateTime"
-              label="End datetime"
-              type="datetime-local"
+              v-model="newPayment.paymentMethod"
+              label="Payment Method"
+        
               required
             ></v-text-field>
             <v-text-field
-              v-model.number="newShowtime.attendeeCount"
-              label="Attendee Count"
+              v-model.number="newPayment.amount"
+              label="Amount"
               type="number"
             ></v-text-field>
-            <!-- binded to a boolean by default -->
-            <v-switch  
-              v-model="newShowtime.isActive"
-              hide-details
-              inset
-              :label="`Active? ${newShowtime.isActive ? 'Yes' : 'No'}`"
-            ></v-switch>
+    
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="flat" color="secondary" @click="closeAdd()"
               >Close</v-btn
             >
-            <v-btn variant="flat" color="primary" @click="addShowtime()"
+            <v-btn variant="flat" color="primary" @click="addPayment()"
               >Save</v-btn
             >
           </v-card-actions>
@@ -343,43 +351,37 @@ function closeSnackBar() {
 
 
 
-      <!-- Edit Showtime -->
+      <!-- Edit Payment -->
        <v-dialog persistent v-model="isEdit" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2"> Edit Showtime </v-card-title>
+          <v-card-title class="headline mb-2"> Edit Payment </v-card-title>
           <v-card-text>
             <v-text-field
-              v-model="newShowtime.startDateTime"
-              label="Start datetime"
-              type="datetime-local"
+              v-model="newPayment.paymentStatus"
+              label="Payment Status"
+           
               required
             ></v-text-field>
 
             <v-text-field
-              v-model="newShowtime.endDateTime"
-              label="End datetime"
-              type="datetime-local"
+              v-model="newPayment.paymentMethod"
+              label="Payment Method"
+        
               required
             ></v-text-field>
             <v-text-field
-              v-model.number="newShowtime.attendeeCount"
-              label="Attendee Count"
+              v-model.number="newPayment.amount"
+              label="Amount"
               type="number"
             ></v-text-field>
-            <!-- binded to a boolean by default -->
-            <v-switch  
-              v-model="newShowtime.isActive"
-              hide-details
-              inset
-              :label="`Active? ${newShowtime.isActive ? 'Yes' : 'No'}`"
-            ></v-switch>
+     
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="flat" color="secondary" @click="closeEdit()"
               >Close</v-btn
             >
-            <v-btn variant="flat" color="primary" @click="editShowtime()"
+            <v-btn variant="flat" color="primary" @click="editPayment()"
               >Save</v-btn
             >
           </v-card-actions>
