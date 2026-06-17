@@ -39,7 +39,9 @@ onMounted(async () => {
 
 
 
+const paymentStatuses = ref(["pending", "completed", "failed", "refunded"]);
 
+const paymentMethods = ref(['credit_card', "debit_card", "paypal"]);
 
 
 const newPayment = ref({
@@ -195,15 +197,12 @@ function closeSnackBar() {
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          ID {{ booking.id }} - {{ booking.name }}
+          ID {{ booking.id }}
           <v-chip class="ma-2" color="primary" label>
             <v-icon start icon="mdi-cash"></v-icon>
-            ${{ booking.price }} 
+            {{ booking.bookingStatus }} 
           </v-chip>
-          <v-chip class="ma-2" color="accent" label>
-            <v-icon start icon="mdi-clock-outline"></v-icon>
-            {{ booking.durationMinutes }} minutes
-          </v-chip>
+       
         </v-col>
         <v-col class="d-flex justify-end">
                  <v-icon 
@@ -240,7 +239,7 @@ function closeSnackBar() {
             <th class="text-left">Total Price</th>
             <th class="text-left">Created At</th>
             <th class="text-left">Updated At</th>
-            <th class="text-left">Actions</th>
+    
           </tr>
         </thead>
         <tbody>
@@ -315,21 +314,21 @@ function closeSnackBar() {
 
        <v-dialog persistent v-model="isAdd" width="800">
         <v-card class="rounded-lg elevation-5">
-          <v-card-title class="headline mb-2">Add a new Payment </v-card-title>
+          <v-card-title class="headline mb-2">Add a new Payment for booking {{ booking.id}}</v-card-title>
           <v-card-text>
-            <v-text-field
+            <v-select
               v-model="newPayment.paymentStatus"
               label="Payment Status"
-    
+              :items="paymentStatuses"
               required
-            ></v-text-field>
+            ></v-select>
 
-            <v-text-field
+            <v-select
               v-model="newPayment.paymentMethod"
               label="Payment Method"
-        
+              :items="paymentMethods"
               required
-            ></v-text-field>
+            ></v-select>
             <v-text-field
               v-model.number="newPayment.amount"
               label="Amount"
@@ -356,19 +355,19 @@ function closeSnackBar() {
         <v-card class="rounded-lg elevation-5">
           <v-card-title class="headline mb-2"> Edit Payment </v-card-title>
           <v-card-text>
-            <v-text-field
+            <v-select
               v-model="newPayment.paymentStatus"
               label="Payment Status"
-           
+              :items="paymentStatuses"
               required
-            ></v-text-field>
+            ></v-select>
 
-            <v-text-field
+            <v-select
               v-model="newPayment.paymentMethod"
               label="Payment Method"
-        
+              :items="paymentMethods"
               required
-            ></v-text-field>
+            ></v-select>
             <v-text-field
               v-model.number="newPayment.amount"
               label="Amount"

@@ -60,7 +60,8 @@ const newBooking = ref({
 // Dropdown Options
 
 const roles = ref(["customer", "admin"]);
-const bookingStatuses = ref(["pending"]);
+const bookingStatuses = ref(["pending", "paid", "cancelled", "refunded", "expired"]);
+
 
 const registeredUsers = ref([]);
 
