@@ -85,7 +85,7 @@ async function editShowtime() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newShowtime.value.name} editted successfully!`; 
+      snackbar.value.text = `${newShowtime.value.id} editted successfully!`; 
     })
     .catch((error) => {
       console.log(error);

@@ -54,6 +54,12 @@ const router = createRouter({
       component: () => import("./views/EditUser.vue"),
     },
     {
+      path: "/bookings/:id",
+      name: "editBooking",
+      props: true,
+      component: () => import("./views/EditBooking.vue"),
+    },
+    {
       path: "/purchases",
       name: "purchases",
       component: () => import("./views/PurchaseHistory.vue"),

@@ -1,11 +1,13 @@
 <script setup>
 import { onMounted } from "vue";
 import { ref } from "vue";
+import { Tabs, Tab } from 'super-vue3-tabs';
 import ShowServices from "../services/ShowServices.js";
 import UserServices from "../services/UserServices.js";
+import BookingServices from "../services/BookingServices.js";
 import ShowCardComponent from "../components/ShowCardComponent.vue";
-import { Tabs, Tab } from 'super-vue3-tabs';
 import UserCardComponent from "../components/UserCardComponent.vue";
+import BookingCardComponent from "../components/BookingCardComponent.vue";
 
 // Tab
 const activeTab = ref('0');
@@ -20,10 +22,12 @@ const snackbar = ref({
 // Data retrieved from database gets put here
 const shows = ref([]); // shows
 const users = ref([]);
+const bookings = ref([]);
 
 // Dialog
 const isAddShow = ref(false); // probably cleaner to pass in a value of "Show" or "User" + "Add" or "Edit" but editing happens in another page
 const isAddUser= ref(false); 
+const isAddBooking = ref(false);
 
 // Currently logged in user
 const user = ref(null);
@@ -46,16 +50,34 @@ const newUser = ref({
   role: undefined,
 });
 
+const newBooking = ref({
+  id: undefined,
+  userId: undefined,
+  bookingStatus: undefined,
+  totalPrice: undefined,
+});
 
 // Dropdown Options
 
 const roles = ref(["customer", "admin"]);
+const bookingStatuses = ref(["pending", "paid", "cancelled", "refunded", "expired"]);
+
+
+const registeredUsers = ref([]);
 
 // Stuff that gets displayed 
 onMounted(async () => {
 
   await getShows(); 
   await getUsers();
+  await getBookings();
+
+  // get UserIds for registeredUsers
+  for (let i = 0; i < users.value.length; i++) {
+      registeredUsers.value.push(users.value[i].id);
+    }
+  console.log(registeredUsers);
+
   user.value = JSON.parse(localStorage.getItem("user")); // still not super sure what this is for? Maybe used for getting objects specific to a user account
 });
 
@@ -137,6 +159,7 @@ async function getUsers() {
 }
 
 
+
 async function addUser() { // adding a new user does not have immediate changes (have to refresh)
   isAddUser.value = false;
   delete newUser.id;
@@ -171,6 +194,65 @@ function openAddUser() {
 function closeAddUser() {
   isAddUser.value = false;
 }
+
+
+
+//----------------------------- Bookings
+
+async function getBookings() {
+  await BookingServices.getBookings() // change to bookings plural? Why is this singular?
+    .then((response) => {
+      bookings.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
+
+
+async function addBooking() { // adding a new booking does not have immediate changes (have to refresh)
+  isAddBooking.value = false;
+  delete newBooking.id;
+  await BookingServices.addBooking(newBooking.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${newBooking.name} added successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getBookings();
+}
+
+
+function openAddBooking() {
+  newBooking.value.id = undefined;
+  newBooking.value.userId = undefined;
+  newBooking.value.bookingStatus = undefined;
+  newBooking.value.totalPrice = undefined;
+  isAddBooking.value = true;
+
+}
+
+function closeAddBooking() {
+  isAddBooking.value = false;
+}
+
+
+
+
+
+
+
+
+
 
 function closeSnackBar() {
   snackbar.value.value = false;
@@ -307,17 +389,46 @@ function closeSnackBar() {
       <UserCardComponent
         v-for="account in users" 
         :key="account.id"
-        :show="account"
+        :user="account"
         @deletedList="getUsers()"
       />
 
     </Tab>
-    <Tab value="Seats">
+
+
+    <Tab value="Bookings">
+      <template #icon>
+        <i class="fas fa-cog"></i>
+      </template>
+
+       <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold"
+            >Bookings
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAddBooking()"
+            >Add Booking</v-btn
+          >
+        </v-col>
+      </v-row>
+      <BookingCardComponent
+      v-for="booking in bookings"
+      :key="booking.id"
+      :booking="booking"
+      @deletedList="getBookings()"
+      />
+  
+    </Tab>
+
+      <Tab value="Seats">
       <template #icon>
         <i class="fas fa-cog"></i>
       </template>
   
     </Tab>
+
 
     <Tab value="Ticket">
       <template #icon>
@@ -377,6 +488,49 @@ function closeSnackBar() {
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+
+
+        
+      <v-dialog persistent v-model="isAddBooking" width="800">
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title class="headline mb-2">Add a new Booking</v-card-title>
+          <v-card-text>
+
+            <v-select
+              v-model="newBooking.userId"
+              label="User"
+              :items="registeredUsers"
+            ></v-select>
+
+
+
+            <v-text-field
+              v-model="newBooking.totalPrice"
+              label="Total Price"
+
+              required
+            ></v-text-field>
+
+            <v-select
+              v-model="newBooking.bookingStatus"
+              label="Status"
+              :items="bookingStatuses"
+            ></v-select>
+
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn variant="flat" color="secondary" @click="closeAddBooking()"
+              >Close</v-btn
+            >
+            <v-btn variant="flat" color="primary" @click="addBooking()"
+              >Add Booking</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
       <v-snackbar v-model="snackbar.value" rounded="pill">
         {{ snackbar.text }}
 
