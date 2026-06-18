@@ -67,21 +67,32 @@ async function getPayments(id) {
 
     console.log("Booking:" + booking.value.id);
     console.log("Payment:" + payments.value[0].id);
+    
     await PaymentServices.updatePayment(payments.value[0].id, payments.value[0]) // updatePayment(id, payment)
       .then((response) => {
         payments.value[0] = response.data;
+            snackbar.value.value = true;
+    snackbar.value.color = "green";
+    snackbar.value.text = `${booking.value.id} refunded successfully!`; 
+
       })
       .catch((error) => {
         console.log(error);
+                   snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+
       });
 
 
     await BookingServices.updateBooking(booking.value.id, booking.value) // updateBooking (id, booking)
       .then((response) => {
         booking.value = response.data;
+
       })
       .catch((error) => {
         console.log(error);
+   
       });
 
 
@@ -126,6 +137,7 @@ function closeSnackBar() {
     </v-card>
 
 
+
    <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
 
@@ -135,8 +147,6 @@ function closeSnackBar() {
         </v-btn>
       </template>
     </v-snackbar>
-
-
 </v-container>
 
 

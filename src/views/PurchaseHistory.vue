@@ -50,9 +50,6 @@ async function getBookingsByUserId() {
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
     });
 }
 
@@ -74,7 +71,7 @@ function closeSnackBar() {
      <div id="body">
 
 
-        <h1>Your purchase history...</h1>
+        <h1 class="mb-6">Your purchase history</h1>
   
 
       <!--

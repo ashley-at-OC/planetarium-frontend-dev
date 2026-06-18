@@ -1,58 +1,42 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import RecipeReports from "../reports/RecipeReports.js";
 import PaymentServices from "../services/PaymentServices.js";
-import BookingServices from "../services/BookingServices.js";
 
 const router = useRouter();
 
-
-const props = defineProps({ // props only works for components within a View (parent --> child)
-   booking: { required: true }
+const props = defineProps({
+  booking: { required: true }
 });
 
 const booking = ref(props.booking);
-
 const user = ref(null);
-
 const payments = ref([]);
-
-
-const refundButtonStyle = ref("refundButton");
-
-
-
-function navigateToRefund() {
-  console.log("Booking ID:", booking.value.id);
-
-  router.push({ name: "refunds", params: { id: booking.value.id } });
-}
-
-
-
-
-
-onMounted(async () => {
-   await getPayments(); 
-    user.value = JSON.parse(localStorage.getItem("user"));
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
 });
 
 
+function navigateToRefund() {
+  router.push({ name: "refunds", params: { id: booking.value.id } });
+}
 
+onMounted(async () => {
+  await getPayments();
+  user.value = JSON.parse(localStorage.getItem("user"));
+});
 
 async function getPayments() {
-    await PaymentServices.getPaymentsForBooking(booking.value.id)
-      .then((response) => {
-        payments.value = response.data;
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  } 
+  try {
+    const response = await PaymentServices.getPaymentsForBooking(booking.value.id);
+    payments.value = response.data;
+  } catch (error) {
+    console.log(error);
 
-
-
+  }
+}
 
 
 
@@ -60,42 +44,66 @@ async function getPayments() {
 
 </script>
 
+ 
 
 <template>
-  <v-card
-    class="rounded-lg elevation-5 mb-8">
-    <v-card-title class="headline">
-    Booking ID: <p>{{ booking.id }}</p>
+  <v-card class="rounded-lg elevation-5 mb-8 pa-4">
 
-
-    <!-- I want to add total amount of people/tickets/seats for booking and a show name or ID -->
-    <!-- if we stick to 1 booking to many payments, keep the loop. Otherwise, remove it -->
-     <p v-for="payment in payments">{{ payment.paymentMethod}}</p>
-
-
-    <p v-for="payment in payments">{{ payment.paymentStatus}}</p>
-
-    <p v-for="payment in payments">${{ payment.amount}}</p>
-
+    <v-card-title class="headline mb-4">
+      Booking #{{ booking.id }}
+      <br>
+      <hr>
     </v-card-title>
+    <v-row>
+    <v-col>
+    <v-card-text>
+      <p><b>Show:</b> {{ booking.showName }}</p>
+      <p><b>Date Purchased:</b> {{ booking.createdAt }}</p>
+      <p><b>Seats Reserved:</b> {{ }}</p>
+      <br>
+      
+      <h3>Payment Details</h3>
+      <div v-for="payment in payments" :key="payment.id" class="mb-2">
+        <p><b>Method:</b> {{ payment.paymentMethod }}</p>
+        <p><b>Payment Status:</b> {{ payment.paymentStatus }}</p>
+        <p><b>Amount to be refunded:</b> ${{ payment.amount }}</p>
 
+      
+      </div>
+    </v-card-text>
+      </v-col>
+      <v-col class="d-flex justify-end"> <!-- v-if="payments.length > 0" ensures payments isn't null. Take advantage of using incline code within tags -->
+    <button class="refundButton" v-if="payments.length > 0" @click="navigateToRefund()" :disabled="payments[0].paymentStatus == 'refunded'">
+          {{ payments[0].paymentStatus == 'refunded' ? "Refunded" : "Submit Refund" }}
+        </button>
+ 
 
-    <button @click="navigateToRefund()" class="refundButton"> Need a refund? </button>
+      </v-col>
+  </v-row>
 
   </v-card>
 
 
-  
+    
+
+
 </template>
 
-
 <style>
-
-.refundButton{
+.refundButton {
   background-color: red;
-  color:aliceblue;
-  padding: 1%;
+  color: white;
+  height:30%;
+  width:25%;
+  margin: 6.5% 5% 0% 0%;
 
 }
-</style>
 
+.refundButton:disabled {
+  background-color: grey; 
+  color: lightgray;
+}
+
+
+
+</style>
