@@ -290,7 +290,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAddShow()"
+          <v-btn v-if="user !== null && user.role === 'admin'" color="accent" @click="openAddShow()"
             >Add Show</v-btn
           >
         </v-col>
@@ -379,7 +379,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAddUser()"
+          <v-btn v-if="user !== null && user.role === 'admin'" color="accent" @click="openAddUser()"
             >Add User</v-btn
           >
         </v-col>

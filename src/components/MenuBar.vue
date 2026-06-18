@@ -55,7 +55,7 @@ function navigateToPurchases() {
       <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
         Login
       </v-btn>
-      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'shows' }">
+      <v-btn v-if="user !== null && user.role === 'admin'" class="mx-2" :to="{ name: 'shows' }">
         Management
       </v-btn>
 

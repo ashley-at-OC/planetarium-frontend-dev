@@ -199,20 +199,21 @@ function closeSnackBar() {
           </v-chip>
         </v-col>
         <v-col class="d-flex justify-end">
-                 <v-icon 
+                 <v-icon
+              v-if="user !== null && user.role === 'admin'"
               size="small"
-              icon="mdi-plus" class="ml-2" 
+              icon="mdi-plus" class="ml-2"
               @click="openAdd()">
             </v-icon>
 
           <v-icon
-            v-if="user !== null"
+            v-if="user !== null && user.role === 'admin'"
             size="small"
             icon="mdi-pencil"
             @click="navigateToEdit()"
           ></v-icon>
             <v-icon
-            v-if="user !== null"
+            v-if="user !== null && user.role === 'admin'"
             size="small"
             icon="mdi-delete"
             @click.stop="deleteShow(item)"
@@ -280,16 +281,17 @@ function closeSnackBar() {
             <td>{{ item.isActive }}</td>
             <td>
               <v-icon
+                v-if="user !== null && user.role === 'admin'"
                 size="small"
                 icon="mdi-pencil"
                 @click="openEdit(item)"
               ></v-icon>
-              <v-icon 
-              size="small"
-              icon="mdi-delete" class="ml-2" 
-              @click.stop="deleteShowtime(item)">
-            </v-icon>
-  
+              <v-icon
+                v-if="user !== null && user.role === 'admin'"
+                size="small"
+                icon="mdi-delete" class="ml-2"
+                @click.stop="deleteShowtime(item)">
+              </v-icon>
             </td>
           
    
