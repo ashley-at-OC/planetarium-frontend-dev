@@ -7,6 +7,13 @@ export default {
     getBooking(id) {
         return apiClient.get("bookings/" + id);
     },
+    getBookingsByUserId(id) {
+        return apiClient.get("bookings/user/" + id);
+    },
+
+
+
+
     addBooking(booking) {
         return apiClient.post("bookings", booking);
     },

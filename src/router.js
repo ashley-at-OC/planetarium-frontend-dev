@@ -59,10 +59,16 @@ const router = createRouter({
       props: true,
       component: () => import("./views/EditBooking.vue"),
     },
-    {
+    { // ?
       path: "/purchases",
       name: "purchases",
       component: () => import("./views/PurchaseHistory.vue"),
+    },
+
+    {
+      path: "/refunds/:id",
+      name: "refunds",
+      component: () => import("./views/Refund.vue"),
     },
   ],
 });

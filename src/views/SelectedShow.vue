@@ -4,7 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import ShowServices from "../services/ShowServices.js";
 import ShowtimeServices from "../services/ShowtimeServices.js";
 
-const route = useRoute();
+
 const router = useRouter();
 
 
