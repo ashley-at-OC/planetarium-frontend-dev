@@ -5,9 +5,11 @@ import { Tabs, Tab } from 'super-vue3-tabs';
 import ShowServices from "../services/ShowServices.js";
 import UserServices from "../services/UserServices.js";
 import BookingServices from "../services/BookingServices.js";
+import TicketServices from "../services/TicketServices.js";
 import ShowCardComponent from "../components/ShowCardComponent.vue";
 import UserCardComponent from "../components/UserCardComponent.vue";
 import BookingCardComponent from "../components/BookingCardComponent.vue";
+import TicketCardComponent from "../components/TicketCardComponent.vue";
 
 // Tab
 const activeTab = ref('0');
@@ -23,6 +25,7 @@ const snackbar = ref({
 const shows = ref([]); // shows
 const users = ref([]);
 const bookings = ref([]);
+const tickets = ref([]);
 
 // Dialog
 const isAddShow = ref(false); // probably cleaner to pass in a value of "Show" or "User" + "Add" or "Edit" but editing happens in another page
@@ -70,7 +73,8 @@ onMounted(async () => {
 
   await getShows(); 
   await getUsers();
-  await getBookings();
+    await getBookings();
+  await getTickets();
 
   // get UserIds for registeredUsers
   for (let i = 0; i < users.value.length; i++) {
@@ -249,6 +253,19 @@ function closeAddBooking() {
 
 
 
+// Tickets 
+async function getTickets() {
+  await TicketServices.getTickets() // change to bookings plural? Why is this singular?
+    .then((response) => {
+      tickets.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
 
 
 
@@ -422,20 +439,35 @@ function closeSnackBar() {
   
     </Tab>
 
-      <Tab value="Seats">
+
+    <Tab value="Tickets">
       <template #icon>
         <i class="fas fa-cog"></i>
       </template>
+
+         <v-row align="center" class="mb-4">
+        <v-col cols="10"
+          ><v-card-title class="pl-0 text-h4 font-weight-bold"
+            >Tickets
+          </v-card-title>
+        </v-col>
+        <v-col class="d-flex justify-end" cols="2">
+          <v-btn v-if="user !== null" color="accent" @click="openAddTicket()"
+            >Add Ticket</v-btn
+          >
+        </v-col>
+      </v-row>
+      <TicketCardComponent
+      v-for="ticket in tickets"
+      :key="ticket.id"
+      :ticket="ticket"
+      @deletedList="getTickets()"
+      />
   
     </Tab>
 
 
-    <Tab value="Ticket">
-      <template #icon>
-        <i class="fas fa-cog"></i>
-      </template>
-  
-    </Tab>
+
   </Tabs>
   
      <div id="body">
