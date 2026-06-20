@@ -184,8 +184,11 @@ registeredShowtimes.value = []; // clear out previously selected show
 
 
 async function addShow() {
+  //close the dialog/modal
   isAddShow.value = false;
+  //don't want to generate id in db
   delete newShow.id;
+  //call service
   await ShowServices.addShow(newShow.value)
     .then(() => {
       snackbar.value.value = true;
@@ -198,6 +201,7 @@ async function addShow() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
+    //refresh the show lists
   await getShows();
 }
 
