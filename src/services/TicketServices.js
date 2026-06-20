@@ -9,7 +9,11 @@ export default {
         return apiClient.get("tickets/" + id);
     },
     getTicketsForBooking(bookingId) {
-        return apiClient.get("bookings/" + bookingId + "/tickets");
+        return apiClient.get("tickets/booking/" + bookingId);
+    },
+
+    getTicketsForShowtime(showtimeId) {
+        return apiClient.get("tickets/showtime/" + showtimeId);
     },
     addTicket(ticket) {
         return apiClient.post("tickets", ticket);

@@ -26,7 +26,7 @@ const snackbar = ref({
 
 
 onMounted(async () => {
-    await getSeats();
+    //await getSeats();
     user.value = JSON.parse(localStorage.getItem("user"));
 });
 
@@ -123,7 +123,7 @@ function closeEdit() {
   isEdit.value = false;
 }
 
-
+/*
 
 async function getSeats() {
     await SeatServices.getSeatsForTicket(ticket.value.id)
@@ -135,7 +135,9 @@ async function getSeats() {
       });
   } 
 
-  
+*/
+
+
 async function deleteTicket() { // still on Ticket functions
   await TicketServices.deleteTicket(ticket.value.id)
     .then(() => {
@@ -156,6 +158,7 @@ async function deleteTicket() { // still on Ticket functions
 
 // directly pass item into deleteSeat since there is no specific seat ref
 
+/*
 async function deleteSeat(item) { // still on Ticket functions
   await SeatServices.deleteSeat(item.id)
     .then(() => {
@@ -172,7 +175,7 @@ async function deleteSeat(item) { // still on Ticket functions
 
   await getSeats();
 }
-
+*/
 
 
 function navigateToEdit() {
