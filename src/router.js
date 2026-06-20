@@ -71,6 +71,12 @@ const router = createRouter({
       name: "purchases",
       component: () => import("./views/PurchaseHistory.vue"),
     },
+
+    {
+      path: "/refunds/:id",
+      name: "refunds",
+      component: () => import("./views/Refund.vue"),
+    },
   ],
 });
 

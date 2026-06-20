@@ -6,7 +6,7 @@ import BookingServices from "../services/BookingServices.js";
 
 const route = useRoute();
 
-const currentUser = ref(null);
+const user = ref(null);
 
 const snackbar = ref({
   value: false,
