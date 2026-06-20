@@ -2,9 +2,9 @@ import axios from "axios";
 
 var baseurl = "";
 if (process.env.NODE_ENV === "development") {
-  baseurl = "http://localhost/recipeapi/";
+  baseurl = "http://localhost:3200/planetariumapi/";
 } else {
-  baseurl = "/recipeapi/";
+  baseurl = "http://ec2-54-227-117-253.compute-1.amazonaws.com:3200/planetariumapi/";
 }
 
 const apiClient = axios.create({
