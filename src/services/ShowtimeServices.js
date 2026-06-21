@@ -8,9 +8,9 @@ export default {
         return apiClient.get("shows/" + showId + "/showtimes");
     },
 
-    getShowtime(showtime) {
+    getShowtime(showtimeId) {
         return apiClient.get(
-            "shows/" + showtime.showId + "/showtimes/" + showtime.id
+            "/showtimes/" + showtimeId
         );
     },
     addShowtime(showtime) {
