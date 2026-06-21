@@ -58,7 +58,7 @@ function navigateToSelectedShow(show) { // can't use props here because this isn
   <Carousel id="carousel" v-bind="carouselConfig">
     <Slide v-for="show in shows" :key="show.name"> <!-- iterate through events list -->
           <div class="infoDiv" @click="navigateToSelectedShow(show)">
-      <img id="whatsNew" :src="'/default.png'" class="carousel__item" /> 
+      <img id="whatsNew" :src="show.imageURL || '/planetarium-frontend/default.png'" class="carousel__item" /> 
       <h3> {{ show.name }}</h3>
       </div>
 

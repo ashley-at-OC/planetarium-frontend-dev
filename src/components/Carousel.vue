@@ -60,7 +60,7 @@ async function getShows() {
 <template>
   <Carousel id="bannerCarousel" v-bind="carouselConfig">
     <Slide v-for="show in shows" :key="show.id"> <!-- iterate through shows list -->
-     <img :src="'/default.png'" class="carousel__item" /> 
+     <img :src="show.imageURL || '/planetarium-frontend/default.png'" class="carousel__item" /> 
       <div class="infoDiv">
       <h3> {{ show.name }}</h3>
       <p> {{ show.description }}</p>
