@@ -5,6 +5,7 @@ import "seatchart/dist/seatchart.min.css";
 import { useRoute, useRouter } from "vue-router";
 import SeatServices from "../services/SeatServices.js"; // Fetches seat data from the backend.
 import ShowServices from "../services/ShowServices.js"; // Fetches show data from the backend
+import BookingServices from "../services/BookingServices.js";
 import TicketServices from "../services/TicketServices.js"; 
 
 
@@ -14,7 +15,7 @@ const seatsWithTickets = ref([]);
 // need to make multiple tickets...
 
 const ticketsForShowtime = ref([]);
-
+const user = ref(null);
 
 
 // For SeatChart.js to draw the seating chart.
@@ -30,12 +31,13 @@ const rowToIndex = (row) => row.charCodeAt(0) - "A".charCodeAt(0);
 // Fetch the seat list from the backend then hand the data to SeatChart.js
 onMounted(async () => {
 
+user.value = JSON.parse(localStorage.getItem("user"));
 
   try {
     const response = await SeatServices.getSeats();
     seats.value = response.data;
     console.log("SEAT" + seats.value[0].id);
-        console.log("SEAT" + seats.value[1].id);
+    console.log("SEAT" + seats.value[1].id);
 
 
 
@@ -57,7 +59,7 @@ onMounted(async () => {
         const show = Array.isArray(showResponse.data)
           // If true the backend returns an array, take the first element. If false take the object directly. (Conditional)
           ? showResponse.data[0] : showResponse.data;
-          // If show is null, show?.price becomes undefined, the condition is false, seatPrice is not updated.
+          // If show is null, show.price becomes undefined, the condition is false, seatPrice is not updated.
           // If a valid price exists, set seatPrice = show.price as Number for seat chart. (Optional Chaining).
         if (show?.price) seatPrice = Number(show.price);  
       } catch (showError) {
@@ -122,7 +124,7 @@ onMounted(async () => {
     });
 
     // When the user clicks checkout button we stash it in localStorage
-    seatchart.addEventListener("submit", (event) => {
+    seatchart.addEventListener("submit", async (event) => { // make async so that await can be used
       // Convert each selected seat in the cart to its backend `id` by matching on row/col. 
       const selectedSeatIds = event.cart
         .map((cartSeat) => {
@@ -138,6 +140,33 @@ onMounted(async () => {
       localStorage.setItem("selectedSeatIds", JSON.stringify(selectedSeatIds));
       localStorage.setItem("selectedTotal", event.total);
 
+        // ------------------- Create booking and tickets --------------- (deletes itself later if the user doesn't commit to it)
+        const newBooking = {
+            id: undefined,
+            userId: user.value.id,
+            bookingStatus: "pending",
+            totalPrice: event.total, // I think this is the total price?
+        }
+
+        const pendingBooking = await BookingServices.addBooking(newBooking); // need to return a booking so that ticket can use the bookingID
+        console.log("new booking added:" + pendingBooking.id);
+        // make a new ticket for every seat 
+        for (let i = 0; i < selectedSeatIds.length; ++i)
+        {
+          const newTicket = {
+            id: undefined,
+            showtimeId: route.params.showtimeId,
+            seatId: selectedSeatIds[i],
+            bookingId: pendingBooking.id, // will this work...?
+            ticketStatus: "valid",
+            ticketType: "adult",
+            ticketPrice: seatPrice,
+            qrCode:  Date.now().toString() + Math.random().toString(36).slice(2) // asked AI to make a random string placeholder for the QR
+          };
+          const pendingTicket = await TicketServices.addTicket(newTicket);
+        console.log("new ticket added:" + pendingTicket);
+        }
+    
       // Send the user to the payment page.
       router.push({ name: "payment" });
     });
@@ -167,27 +196,25 @@ async function getReservedSeatsForShowtime(ticketsForShowtime) { // array of sea
       // use global seats variable
      console.log("GET RESERVED SEATS FOR SHOWTIME" );
 
-
-     
-       let isReservedList = Array(60).fill(false);  // making a boolean map kind of // are there 75 or 60 seats? Come back to this later...
+     let isReservedList = Array(60).fill(false);  // making a boolean map kind of // are there 75 or 60 seats? Come back to this later...
     
        for (var i = 0; i < ticketsForShowtime.length; ++i) // put true where ticket's seat ID is
        {
-        isReservedList[ticketsForShowtime[i].seatId] = true;
+         isReservedList[ticketsForShowtime[i].seatId] = true;
        }
-         console.log(isReservedList);
+  //       console.log(isReservedList);
 
 
-         console.log("SEATS LENGTH" + seats.value.length)
+  //       console.log("SEATS LENGTH" + seats.value.length)
        // push seats into reservedSeats list
-      for(var i = 0; i < seats.value.length; ++i)   // hard code loop for now
+for(var i = 0; i < seats.value.length; ++i)   // hard code loop for now
       {
         console.log("loop");
         let seat = seats.value[i];
         console.log(seat)
 
 
-      if(seat.id == 0 || seat.id == 1 || seat.id == 8 || seat.id == 9)    // make A1, A2, A9, A10 handicap seats
+  if(seat.id == 0 || seat.id == 1 || seat.id == 9)  // make A1, A2, A9, A10 handicap seats ... something in Lance's code makes the second to last seat handicappe
       {
         seat.seatType = "handicap";
       }
@@ -199,14 +226,10 @@ async function getReservedSeatsForShowtime(ticketsForShowtime) { // array of sea
               console.log("SEAT WITH TICKETS ARRAY");
               console.log("SEAT: " + seat.id + " " + seat.seatNumber + " ");
 
-              
+
           }
       }
-
-  
-
-
-    };
+};
 
 
 
