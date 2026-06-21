@@ -29,6 +29,7 @@ const show = ref({
   description: "",
   price: 0,
   durationMinutes: 0,
+  imageURL: null,
 });
 
 
@@ -193,13 +194,19 @@ function closeSnackBar() {
               </v-col>
             </v-row>
             <v-row>
-              <v-file-input 
+              <!-- <v-file-input 
               v-model="show.image"
               label="Upload cover image"
               show-size
               clearable
               show-image
-            > </v-file-input>
+            > </v-file-input> -->
+              <v-text-field 
+                v-model="show.imageURL"
+                label="Upload image url"
+                show-size
+                clearable
+            > </v-text-field>
             </v-row>
           </v-card-text>
           <v-card-actions class="pt-0">

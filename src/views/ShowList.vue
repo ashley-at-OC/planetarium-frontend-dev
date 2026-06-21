@@ -52,7 +52,8 @@ const newShow = ref({
   name: undefined,
   description: undefined,
   price: undefined,
-  image: undefined,
+  // image: undefined,
+  imageURL: undefined,
 });
 
 const newUser = ref({
@@ -226,7 +227,8 @@ function openAddShow() {
   newShow.value.name = undefined;
   newShow.value.description = undefined;
   newShow.value.price = undefined;
-  newShow.value.image = undefined;
+  // newShow.value.image = undefined;
+  newShow.value.imageURL = undefined;
   isAddShow.value = true;
 }
 
@@ -518,12 +520,19 @@ function closeSnackBar() {
 
              <!-- https://vuetifyjs.com/en/components/file-inputs/#usage -->
             <!-- need to try this later -->
-            <v-file-input 
+            <!-- <v-file-input 
               v-model="newShow.image"
               label="Upload cover image"
               show-size
               clearable
-            > </v-file-input>
+            > </v-file-input> -->
+
+              <v-text-field 
+              v-model="newShow.imageURL"
+              label="Upload image url"
+              show-size
+              clearable
+            > </v-text-field>
 
             <!-- doesn't need a switch, probably need to copy this to Showtime -->
             <v-switch 

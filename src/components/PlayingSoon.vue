@@ -68,7 +68,7 @@ function navigateToSelectedShow(show) { // can't use props here because this isn
       
       <div class="infoDiv" @click="navigateToSelectedShow(show)">
    
-      <img id="playingsoon" :src="'/default.png'" class="carousel__item" /> 
+      <img id="playingsoon" :src="show.imageURL || '/planetarium-frontend/default.png'" class="carousel__item" /> 
       <h3> {{ show.name }}</h3>
 
   
