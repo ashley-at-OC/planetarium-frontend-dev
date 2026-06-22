@@ -43,10 +43,6 @@ user.value = JSON.parse(localStorage.getItem("user"));
 
       
     getTicketsForShowtime(route.params.showtimeId);
-
-
-
-
     // Look up the show fromSelectedShow.vue. Fall back to $15 if it fails.
     let seatPrice = 15;
   //  const selectedShowId = localStorage.getItem("selectedShowId");
@@ -150,6 +146,9 @@ user.value = JSON.parse(localStorage.getItem("user"));
 
         const pendingBooking = await BookingServices.addBooking(newBooking); // need to return a booking so that ticket can use the bookingID
         console.log("new booking added:" + pendingBooking.id);
+        const selectedTicketIds = [];
+        const selectedSeatNumbers = [];
+
         // make a new ticket for every seat 
         for (let i = 0; i < selectedSeatIds.length; ++i)
         {
@@ -164,11 +163,20 @@ user.value = JSON.parse(localStorage.getItem("user"));
             qrCode:  Date.now().toString() + Math.random().toString(36).slice(2) // asked AI to make a random string placeholder for the QR
           };
           const pendingTicket = await TicketServices.addTicket(newTicket);
-        console.log("new ticket added:" + pendingTicket);
+             console.log("new ticket added:" + pendingTicket.data.id);
+                console.log("new seat added:" + seats.value[i].seatNumber);
+          selectedTicketIds.push(pendingTicket.data.id);
+          selectedSeatNumbers.push(seats.value[selectedSeatIds[i]].seatNumber);
+     
         }
+
     
       // Send the user to the payment page.
-      router.push({ name: "payment" });
+      // don't actually need to send bookingId because tickets should have the bookingId already
+      router.push({ name: "payment", params: {seatNumbers: selectedSeatNumbers, ticketIds: selectedTicketIds }});
+
+      
+     
     });
   } catch (error) {
     console.log(error);
@@ -185,16 +193,12 @@ async function getTicketsForShowtime(showtimeId) {
   const response =  await TicketServices.getTicketsForShowtime(showtimeId); 
    
    ticketsForShowtime.value = response.data; 
-   for (var i = 0; i < ticketsForShowtime.length; ++i){ // just checking
-      console.log("Tickets: " + ticketsForShowtime.value.showtimeId);
-   }
      await getReservedSeatsForShowtime(ticketsForShowtime.value);
  
 }
 
 async function getReservedSeatsForShowtime(ticketsForShowtime) { // array of seats whose seatId is not flagged by tickets
       // use global seats variable
-     console.log("GET RESERVED SEATS FOR SHOWTIME" );
 
      let isReservedList = Array(60).fill(false);  // making a boolean map kind of // are there 75 or 60 seats? Come back to this later...
     
@@ -209,12 +213,9 @@ async function getReservedSeatsForShowtime(ticketsForShowtime) { // array of sea
        // push seats into reservedSeats list
 for(var i = 0; i < seats.value.length; ++i)   // hard code loop for now
       {
-        console.log("loop");
+
         let seat = seats.value[i];
-        console.log(seat)
-
-
-  if(seat.id == 0 || seat.id == 1 || seat.id == 9)  // make A1, A2, A9, A10 handicap seats ... something in Lance's code makes the second to last seat handicappe
+        if(seat.id == 0 || seat.id == 1 || seat.id == 9)  // make A1, A2, A9, A10 handicap seats ... something in Lance's code makes the second to last seat handicapped
       {
         seat.seatType = "handicap";
       }
@@ -223,7 +224,7 @@ for(var i = 0; i < seats.value.length; ++i)   // hard code loop for now
           {
 
               seatsWithTickets.value.push(seat);
-              console.log("SEAT WITH TICKETS ARRAY");
+         //     console.log("SEAT WITH TICKETS ARRAY");
               console.log("SEAT: " + seat.id + " " + seat.seatNumber + " ");
 
 
