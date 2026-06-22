@@ -55,7 +55,8 @@ const newShow = ref({
   name: undefined,
   description: undefined,
   price: undefined,
-  image: undefined,
+  // image: undefined,
+  imageURL: undefined,
 });
 
 const newUser = ref({
@@ -201,8 +202,11 @@ registeredShowtimes.value = []; // clear out previously selected show
 
 
 async function addShow() {
+  //close the dialog/modal
   isAddShow.value = false;
+  //don't want to generate id in db
   delete newShow.id;
+  //call service
   await ShowServices.addShow(newShow.value)
     .then(() => {
       snackbar.value.value = true;
@@ -215,6 +219,7 @@ async function addShow() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
+    //refresh the show lists
   await getShows();
 }
 
@@ -239,7 +244,8 @@ function openAddShow() {
   newShow.value.name = undefined;
   newShow.value.description = undefined;
   newShow.value.price = undefined;
-  newShow.value.image = undefined;
+  // newShow.value.image = undefined;
+  newShow.value.imageURL = undefined;
   isAddShow.value = true;
 }
 
@@ -531,12 +537,19 @@ function closeSnackBar() {
 
              <!-- https://vuetifyjs.com/en/components/file-inputs/#usage -->
             <!-- need to try this later -->
-            <v-file-input 
+            <!-- <v-file-input 
               v-model="newShow.image"
               label="Upload cover image"
               show-size
               clearable
-            > </v-file-input>
+            > </v-file-input> -->
+
+              <v-text-field 
+              v-model="newShow.imageURL"
+              label="Upload image url"
+              show-size
+              clearable
+            > </v-text-field>
 
             <!-- doesn't need a switch, probably need to copy this to Showtime -->
             <v-switch 

@@ -10,7 +10,9 @@ export default {
     async addBooking(booking) { // need to return response for ticket creation in SeatMap.vue
         let response = await apiClient.post("bookings", booking);
         return response.data;
-
+    },
+    getBookingsByUserId(id) {
+        return apiClient.get("bookings/user/" + id);
     },
     updateBooking(id, booking) {
         return apiClient.put("bookings/" + id, booking); // booking is now independent of Recipe? ID instead of booking.id
