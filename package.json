@@ -14,6 +14,7 @@
     "eslint-plugin-vue": "^9.7.0",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
+    "qrcode.vue": "^3.10.0",
     "roboto-fontface": "*",
     "seatchart": "^0.1.0",
     "super-vue3-tabs": "^1.2.5",
