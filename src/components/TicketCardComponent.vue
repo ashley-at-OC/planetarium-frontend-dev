@@ -26,8 +26,24 @@ const snackbar = ref({
 
 
 onMounted(async () => {
-    //await getSeats();
+   // await getSeats();
     user.value = JSON.parse(localStorage.getItem("user"));
+
+      
+ // TICKET
+    // convert DateTime format into more readable date time format (mm:dd, hh:mm)
+      var rawCreatedAt = new Date(ticket.value.createdAt);
+      var rawUpdatedAt = new Date(ticket.value.updatedAt);
+      var createdAtDate = rawCreatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var updatedAtDate = rawUpdatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var createdAtTime = rawCreatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      var updatedAtTime = rawUpdatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      ticket.value.formattedCreatedAt = `${createdAtDate} ${createdAtTime}`; // store back into tickets under formattedTime (you can dynamically add a new property in Vue)
+      ticket.value.formattedUpdatedAt = `${updatedAtDate} ${createdAtTime}`; 
+    
+
+    
+
 });
 
 
@@ -123,6 +139,7 @@ function closeEdit() {
   isEdit.value = false;
 }
 
+
 /*
 
 async function getSeats() {
@@ -135,7 +152,8 @@ async function getSeats() {
       });
   } 
 
-*/
+  */
+
 
 
 async function deleteTicket() { // still on Ticket functions
@@ -240,6 +258,7 @@ function closeSnackBar() {
             <th class="text-left">Booking Id</th>
             <th class="text-left">Showtime ID</th>
             <th class="text-left">Seat ID</th>
+            <th class="text-left">Seat Number</th>
             <th class="text-left">Status</th>
             <th class="text-left">Type</th>
             <th class="text-left">Price</th>
@@ -257,13 +276,14 @@ function closeSnackBar() {
             <td>{{ ticket.bookingId }}</td>
             <td>{{ ticket.showtimeId }}</td>
             <td>{{ ticket.seatId}}</td>
+      <!--  <td>{{ seats[ticket.seatId].seatNumber}}</td> -->
             <td>{{ ticket.ticketStatus}}</td>
             <td>{{ ticket.ticketType}}</td>
             <td>{{ ticket.ticketPrice}}</td>
             <td>{{ ticket.emailedAt}}</td>
             <td>{{ ticket.scannedAt}}</td>
-            <td>{{ ticket.createdAt}}</td>
-            <td>{{ ticket.updatedAt }}</td>
+            <td>{{ ticket.formattedCreatedAt}}</td>
+            <td>{{ ticket.formattedUpdatedAt }}</td>
           </tr>
 
           </tbody>

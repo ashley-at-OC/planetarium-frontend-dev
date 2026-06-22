@@ -22,7 +22,7 @@ const router = createRouter({
     {
       path: "/shows",
       name: "shows",
-      component: () => import("./views/ShowList.vue"),
+      component: () => import("./views/Management.vue"),
     },
     {
       path: "/show/:id",
@@ -37,13 +37,13 @@ const router = createRouter({
       component: () => import("./views/SelectedShow.vue"),
     },
     {
-      path: "/payment/:id?",
+      path: "/payment/:seatNumbers+/:ticketIds+", // + for arrays
       name: "payment",
       props: true,
       component: () => import("./views/Payment.vue"),
     },
     {
-      path: "/seats",
+      path: "/seatmap/:showtimeId/:showId",
       name: "seatMap",
       component: () => import("./views/SeatMap.vue"),
     },
