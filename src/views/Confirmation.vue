@@ -11,6 +11,11 @@ const email = ref("");
 onMounted(() => {
   // Grab the passed seats and store them into seatNumbers
   const seats = route.params.seatNumbers;
+  // Error handling mainly for AC2
+  if (!seats) {
+    errorMessage.value = "Ticket information could not be found.";
+    return;
+  }
   // If array keep it; otherwise convert it to an array.
   if (Array.isArray(seats)) {
     seatNumbers.value = seats;
@@ -55,9 +60,13 @@ function goHome() {
         >
           <v-icon size="80" color="grey">mdi-qrcode</v-icon>
         </v-sheet>
-
-        <p class="text-body-1 mt-2">
-          Tickets have been emailed to <strong>{{ email }}</strong>
+        
+        <p v-if="email" class="text-body-1 mt-2">
+        Tickets have been emailed to <strong>{{ email }}</strong>
+        </p>
+        <!-- Error handeling for AC2 -->
+        <p v-else class="text-body-1 mt-2">
+        Your tickets are ready.
         </p>
       </v-card-text>
 
