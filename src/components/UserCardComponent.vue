@@ -24,6 +24,19 @@ const snackbar = ref({
 onMounted(async () => {
   console.log("USER ID:", user.value.id);
   currentUser.value = JSON.parse(localStorage.getItem("user"));
+
+ // USER
+    // convert DateTime format into more readable date time format (mm:dd, hh:mm)
+      var rawCreatedAt = new Date(user.value.createdAt);
+      var rawUpdatedAt = new Date(user.value.updatedAt);
+      var createdAtDate = rawCreatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var updatedAtDate = rawUpdatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var createdAtTime = rawCreatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      var updatedAtTime = rawUpdatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      user.value.formattedCreatedAt = `${createdAtDate} ${createdAtTime}`; // store back into users under formattedTime (you can dynamically add a new property in Vue)
+      user.value.formattedUpdatedAt = `${updatedAtDate} ${createdAtTime}`; 
+    
+
 });
 
 
@@ -123,8 +136,8 @@ function closeSnackBar() {
             <td>{{ user.firstName }}</td>
             <td>{{ user.lastName }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.createdAt}}</td>
-            <td>{{ user.updatedAt }}</td>
+            <td>{{ user.formattedCreatedAt}}</td>
+            <td>{{ user.formattedUpdatedAt }}</td>
           </tr>
 
           </tbody>
