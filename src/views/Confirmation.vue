@@ -1,12 +1,14 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import QrcodeVue from "qrcode.vue";
 
 const route = useRoute();
 const router = useRouter();
 
 const seatNumbers = ref([]);
 const email = ref("");
+const qrValue = ref("http://ec2-54-227-117-253.compute-1.amazonaws.com/planetarium-frontend/"); 
 
 onMounted(() => {
   // Grab the passed seats and store them into seatNumbers
@@ -50,7 +52,7 @@ function goHome() {
           <strong>{{ seatNumbers.join(", ") }}</strong> 
         </p>
 
-        <!-- QR code placeholder -->
+        <!-- QR code -->
         <v-sheet
           class="mx-auto mt-6 mb-4 d-flex align-center justify-center"
           color="grey-lighten-3"
@@ -58,7 +60,7 @@ function goHome() {
           width="160"
           height="160"
         >
-          <v-icon size="80" color="grey">mdi-qrcode</v-icon>
+           <QrcodeVue :value="qrValue" :size="140" />
         </v-sheet>
         
         <p v-if="email" class="text-body-1 mt-2">
