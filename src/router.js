@@ -71,6 +71,12 @@ const router = createRouter({
       name: "purchases",
       component: () => import("./views/PurchaseHistory.vue"),
     },
+    {
+      path: "/confirmation/:seatNumbers+",
+      name: "confirmation",
+      props: true,
+      component: () => import("./views/Confirmation.vue"),
+    },
 
     {
       path: "/refunds/:id",

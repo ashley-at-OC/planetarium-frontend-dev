@@ -226,9 +226,7 @@ async function submitPayment() { // make async so that "await" can be used
 
 console.log("New Payment!! " + newPayment.value);
 await addPayment();
-/* 
-// TODO: route push to Confirmation page here
-*/
+router.push({ name: "confirmation", params: { seatNumbers: route.params.seatNumbers } });
 }
 
 function showSnack(color, text) {
