@@ -20,4 +20,8 @@ export default {
     deleteBooking(bookingId) {
         return apiClient.delete("bookings/" + bookingId);
     },
+    //email confirmation
+    sendConfirmationEmail(bookingId, email) {
+        return apiClient.post(`bookings/${bookingId}/email-confirmation`, {email,});
+    },
 };
