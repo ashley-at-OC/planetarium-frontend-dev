@@ -77,13 +77,14 @@ function navigateToManagementPage()
 </script>
 
 <template>
-  <v-container>
-     
-      <v-icon
+    <v-icon
       size="80"
       icon="mdi-keyboard-backspace"
        @click="navigateToManagementPage()"
       />
+  <v-container>
+     
+
     <v-row align="center">
       <v-col cols="10"
         ><v-card-title class="pl-0 text-h4 font-weight-bold"

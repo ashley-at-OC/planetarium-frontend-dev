@@ -67,14 +67,18 @@ async function getShowtimes() {
       });
 
       // convert DateTime format into more readable time format (hh:mm)
-      // shouldn't modify database
       for (let i = 0; i < showtimes.value.length; ++i)
       {
-        var date = new Date(showtimes.value[i].startDateTime);
-        var time = date.toLocaleTimeString([],  {  
+        var raw = new Date(showtimes.value[i].startDateTime);
+
+      var date = raw.toLocaleDateString([],  {  
+           month: "short", day: "2-digit"
+        });
+        var time = raw.toLocaleTimeString([],  {  
            hour: "numeric", minute: "2-digit"
         });
         showtimes.value[i].formattedTime = time; // store back into showtimes under formattedTime (you can dynamically add a new property in Vue)
+        showtimes.value[i].formattedDate = date;
       }
 
 
@@ -90,20 +94,21 @@ async function getShowtimes() {
 
 
 <template>
-    <v-container>
       <v-icon
       size="80"
       icon="mdi-keyboard-backspace"
        @click="navigateToHome()"
       />
  
-<h1> 
-{{ show.name }}
+    <v-container>
+ 
+ 
 
-</h1>
   <div id="showDetails">   
   <img id="showDetailsImage" :src="show.imageURL || '/planetarium-frontend/default.png'"/> 
+  
   <div id="text">
+    <h1 class="showTitle">{{ show.name }}</h1>
 <p>{{ show.description }}</p>
 
 <div id="chips">
@@ -120,7 +125,8 @@ async function getShowtimes() {
 
 
   <button id="showtimeButton" v-for="showtime in showtimes" :key="showtime.id" @click="goToSeatMap(show.id, showtime.id)"> 
-  <h3> {{ showtime.formattedTime }}</h3>
+  <h2>{{showtime.formattedTime }}</h2>
+  <p> {{showtime.formattedDate}}</p>
 </button>
 </div>
 
@@ -138,16 +144,19 @@ async function getShowtimes() {
 #showDetailsImage
 {
   margin: 0% 5% 0% 5%;
-  width: 40%;
+  width: 15%;
   height: 30%;
 }
 
 #showtimeButton{
-  margin: 0% 3% 0% 3%;
-  background-color: rgb(228, 222, 222);
-  color:black;
+  margin: 0% 3% 0% 9%;
+  padding: 0.5% 0% 0.5% 0%;
+  background-color: rgb(107, 107, 107);
+  color:rgb(255, 255, 255);
   width: 10%;
   font-size: medium;
+  border-radius: 5%;
+  
 }
 
 #buttonList{
@@ -157,4 +166,19 @@ async function getShowtimes() {
 
 }
 
+#showTitle
+{
+  font-size: 60%;
+}
+
+#chips
+{
+  margin: 2% 0% 0% 0%
+}
+
+.v-chip
+{
+
+  margin: 0.5%
+}
 </style>

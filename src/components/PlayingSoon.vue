@@ -89,13 +89,15 @@ function navigateToSelectedShow(show) { // can't use props here because this isn
 
 .infoDiv{
   text-align: center;
-  margin: 10%;
+  margin:o 10%;
 
 }
 
 #playingsoon{
-  width: 70%;
-  height: 10%;
+  width: 80%;
+  height: 15%;
+  
+  border-radius: 5%;
 
 
 }

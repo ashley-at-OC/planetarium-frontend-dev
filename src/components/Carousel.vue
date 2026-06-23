@@ -62,7 +62,7 @@ async function getShows() {
     <Slide v-for="show in shows" :key="show.id"> <!-- iterate through shows list -->
      <img :src="show.imageURL || '/planetarium-frontend/default.png'" class="carousel__item" /> 
       <div class="infoDiv">
-      <h3> {{ show.name }}</h3>
+      <h1> {{ show.name }}</h1>
       <p> {{ show.description }}</p>
 
          
@@ -80,8 +80,8 @@ async function getShows() {
 <style>
 
 img{
-  width:50%;
-  height:90%;
+  width:40%;
+  height:80%;
 }
 
 .infoDiv{
@@ -93,7 +93,7 @@ img{
 
 #bannerCarousel{
   margin: 5% 0% 10% 0%;
-  background-color: rgb(66, 58, 59);
+  background-color: rgb(62, 61, 61);
   color:white;
 }
 
@@ -103,6 +103,7 @@ img{
   color: aliceblue;
   width:200px;
   height: 50px;
+  border-radius: 6%;
   
   
 }
