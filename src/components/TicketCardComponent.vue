@@ -161,7 +161,7 @@ async function deleteTicket() { // still on Ticket functions
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Ticket deleted successfully!`;
+      snackbar.value.text = `Ticket with ID ${ticket.value.id} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);

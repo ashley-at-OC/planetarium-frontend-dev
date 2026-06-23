@@ -80,7 +80,10 @@ async function getShowtimes() {
 
   } 
 
-
+ function navigateToHome()
+ {
+    router.push({ name: "recipes"});
+ }
 
 
 </script>
@@ -88,6 +91,11 @@ async function getShowtimes() {
 
 <template>
     <v-container>
+      <v-icon
+      size="80"
+      icon="mdi-keyboard-backspace"
+       @click="navigateToHome()"
+      />
  
 <h1> 
 {{ show.name }}

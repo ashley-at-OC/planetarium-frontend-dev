@@ -277,7 +277,7 @@ async function addUser() { // adding a new user does not have immediate changes 
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newUser.name} added successfully!`;
+      snackbar.value.text = `${newUser.value.firstName} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -330,7 +330,7 @@ async function addBooking() { // adding a new booking does not have immediate ch
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newBooking.name} added successfully!`;
+      snackbar.value.text = `Booking added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -429,7 +429,7 @@ async function addTicket() { // adding a new booking does not have immediate cha
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newTicket.name} added successfully!`;
+      snackbar.value.text = `Ticket added successfully!`;
     })
     .catch((error) => {
       console.log(error);

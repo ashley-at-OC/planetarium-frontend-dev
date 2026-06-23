@@ -159,7 +159,7 @@ async function deleteShow() { // still on Show functions
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Show deleted successfully!`;
+      snackbar.value.text = `${show.value.name} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);

@@ -1,9 +1,10 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import UserServices from "../services/UserServices.js";
 
+const router = useRouter();
 const route = useRoute();
 
 const currentUser = ref(null);
@@ -63,12 +64,22 @@ function closeSnackBar() {
   snackbar.value.value = false;
 }
 
+function navigateToManagementPage()
+{
+  router.push({ name: "shows" });
+}
 
 
 </script>
 
 <template>
   <v-container>
+     
+      <v-icon
+      size="80"
+      icon="mdi-keyboard-backspace"
+       @click="navigateToManagementPage()"
+      />
     <v-row align="center">
       <v-col cols="10"
         ><v-card-title class="pl-0 text-h4 font-weight-bold"
