@@ -481,8 +481,6 @@ function closeSnackBar() {
         <i class="fas fa-home"></i>
       </template>
       
-      <p>Maybe add some totals or something here</p>
-
       <!-- SHOWS -->
 
       <v-row align="center" class="mb-4">
