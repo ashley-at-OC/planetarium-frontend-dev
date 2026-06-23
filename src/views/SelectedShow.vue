@@ -93,7 +93,7 @@ async function getShowtimes() {
 
 </h1>
   <div id="showDetails">   
-  <img id="showDetailsImage" :src="'/default.png'" /> 
+  <img id="showDetailsImage" :src="show.imageURL || '/planetarium-frontend/default.png'"/> 
   <div id="text">
 <p>{{ show.description }}</p>
 
