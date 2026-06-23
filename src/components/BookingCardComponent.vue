@@ -222,6 +222,7 @@ function closeSnackBar() {
         </v-col>
         <v-col class="d-flex justify-end">
                  <v-icon 
+              title="Add Payment"
               size="small"
               icon="mdi-plus" class="ml-2" 
               @click="openAdd()">
@@ -271,18 +272,6 @@ function closeSnackBar() {
           </tbody>
       </v-table>
 
-      <!-- id            | int                                                     | NO   | PRI | NULL    | auto_increment |
-| bookingStatus | enum('pending','paid','cancelled','refunded','expired') | NO   |     | pending |                |
-| totalPrice    | decimal(8,2)                                            | NO   |     | 0.00    |                |
-| createdAt     | datetime                                                | NO   |     | NULL    |                |
-| updatedAt     | datetime                                                | NO   |     | NULL    |                |
-| userId   -->
-
-
-
-
-
-
         <!-- how do I make this bold -->
         <h1>Payment</h1>
 
@@ -309,11 +298,13 @@ function closeSnackBar() {
             <td>{{ item.amount }}</td>
             <td>
               <v-icon
+              title="Edit payment"
                 size="small"
                 icon="mdi-pencil"
                 @click="openEdit(item)"
               ></v-icon>
               <v-icon 
+              title="Delete payment"
               size="small"
               icon="mdi-delete" class="ml-2" 
               @click.stop="deletePayment(item)">

@@ -226,11 +226,7 @@ function closeSnackBar() {
        
         </v-col>
         <v-col class="d-flex justify-end">
-                 <v-icon 
-              size="small"
-              icon="mdi-plus" class="ml-2" 
-              @click="openAdd()">
-            </v-icon>
+      
 
           <v-icon
             v-if="user !== null"

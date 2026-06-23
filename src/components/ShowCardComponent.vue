@@ -228,6 +228,7 @@ function closeSnackBar() {
         <v-col class="d-flex justify-end">
                  <v-icon
               v-if="user !== null && user.role === 'admin'"
+              title="Add showtime"
               size="small"
               icon="mdi-plus" class="ml-2"
               @click="openAdd()">
