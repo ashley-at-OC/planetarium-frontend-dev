@@ -42,7 +42,7 @@ user.value = JSON.parse(localStorage.getItem("user"));
 
 
       
-    getTicketsForShowtime(route.params.showtimeId);
+    await getTicketsForShowtime(route.params.showtimeId);
     // Look up the show fromSelectedShow.vue. Fall back to $15 if it fails.
     let seatPrice = 15;
   //  const selectedShowId = localStorage.getItem("selectedShowId");
