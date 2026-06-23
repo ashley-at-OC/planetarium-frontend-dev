@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import TicketServices from "../services/TicketServices.js";
 
 const route = useRoute();
+
+const router = useRouter();
 
 const ticketsForShowtime = ref([]);
 
@@ -49,13 +51,18 @@ async function getTicket() {
 }
 
 
+function navigateToManagementPage()
+{
+  router.push({ name: "shows" });
+}
+
 async function updateTicket() { 
 
   await TicketServices.updateTicket(ticket.value.id, ticket.value) 
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${ticket.value.id} updated successfully!`;
+      snackbar.value.text = `Ticket with ID ${ticket.value.id} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -77,6 +84,12 @@ function closeSnackBar() {
 
 <template>
   <v-container>
+
+          <v-icon
+      size="80"
+      icon="mdi-keyboard-backspace"
+       @click="navigateToManagementPage()"
+      />
     <v-row align="center">
       <v-col cols="10"
         ><v-card-title class="pl-0 text-h4 font-weight-bold"

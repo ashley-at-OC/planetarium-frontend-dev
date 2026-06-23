@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import BookingServices from "../services/BookingServices.js";
 
 const route = useRoute();
+
+const router = useRouter();
 
 const user = ref(null);
 
@@ -19,6 +21,7 @@ const booking = ref({
   bookingStatus: "",
   totalPrice: 0,
 });
+
 
 const bookingStatuses = ref(["pending", "paid", "cancelled", "refunded", "expired"]);
 
@@ -37,6 +40,10 @@ async function getBooking() {
     });
 }
 
+function navigateToManagementPage()
+{
+  router.push({ name: "shows" });
+}
 
 async function updateBooking() { 
 
@@ -44,7 +51,7 @@ async function updateBooking() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${booking.value.id} updated successfully!`;
+      snackbar.value.text = `Booking with ID ${booking.value.id} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -66,6 +73,11 @@ function closeSnackBar() {
 
 <template>
   <v-container>
+          <v-icon
+      size="80"
+      icon="mdi-keyboard-backspace"
+       @click="navigateToManagementPage()"
+      />
     <v-row align="center">
       <v-col cols="10"
         ><v-card-title class="pl-0 text-h4 font-weight-bold"

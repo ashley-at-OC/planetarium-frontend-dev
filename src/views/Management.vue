@@ -81,7 +81,7 @@ const newTicket = ref({
   bookingId: undefined,
   showtimeId: undefined,
   seatId: undefined,
-  qrCode: undefined, 
+  qrCode:  undefined, 
   ticketStatus: undefined,
   ticketType: undefined,
   ticketPrice: undefined, 
@@ -277,7 +277,7 @@ async function addUser() { // adding a new user does not have immediate changes 
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newUser.name} added successfully!`;
+      snackbar.value.text = `${newUser.value.firstName} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -330,7 +330,7 @@ async function addBooking() { // adding a new booking does not have immediate ch
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newBooking.name} added successfully!`;
+      snackbar.value.text = `Booking added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -429,7 +429,7 @@ async function addTicket() { // adding a new booking does not have immediate cha
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newTicket.name} added successfully!`;
+      snackbar.value.text = `Ticket added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -446,7 +446,7 @@ function openAddTicket() { // clears newTicket every time add dialog opens
   newTicket.value.bookingId = undefined,
   newTicket.value.showtimeId = undefined,
   newTicket.value.seatId = undefined,
-  newTicket.value.qrCode = undefined, 
+  newTicket.value.qrCode = Date.now().toString() + Math.random().toString(36).slice(2) // new unique QR code
   newTicket.value.ticketStatus = undefined,
   newTicket.value.ticketType = undefined,
   newTicket.value.ticketPrice = undefined,
@@ -481,8 +481,6 @@ function closeSnackBar() {
         <i class="fas fa-home"></i>
       </template>
       
-      <p>Maybe add some totals or something here</p>
-
       <!-- SHOWS -->
 
       <v-row align="center" class="mb-4">
@@ -840,7 +838,7 @@ function closeSnackBar() {
             ></v-select>
             
 
-                   <v-text-field
+              <v-text-field
               v-model="newTicket.qrCode"
               label="QR Code"
 

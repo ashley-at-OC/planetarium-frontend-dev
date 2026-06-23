@@ -48,7 +48,7 @@ async function deleteUser() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `User deleted successfully!`;
+      snackbar.value.text = `${user.value.firstName} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -87,7 +87,7 @@ function closeSnackBar() {
     <v-card-title class="headline">
       <v-row align="center">
         <v-col cols="10">
-          ID {{ user.firstName }} {{ user.lastName }}
+          ID {{user.id}} - {{ user.firstName }} {{ user.lastName }}
           <!-- change color of chip for different user types? -->
           <v-chip class="ma-2" color="blue" label>
             <v-icon start icon="mdi-account-circle"></v-icon>

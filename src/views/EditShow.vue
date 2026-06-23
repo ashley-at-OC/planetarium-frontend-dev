@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import ShowServices from "../services/ShowServices.js";
 import ShowtimeServices from "../services/ShowtimeServices.js";
 import ShowCardComponent from "../components/ShowCardComponent.vue"
@@ -8,7 +8,7 @@ import ShowCardComponent from "../components/ShowCardComponent.vue"
 //import RecipeStepServices from "../services/RecipeStepServices";
 //import RecipeServices from "../services/RecipeServices";
 
-
+const router = useRouter();
 const route = useRoute();
 // got rid of a lot of stuff for now
 const shows = ref([]); // change to shows later
@@ -70,86 +70,24 @@ async function updateShow() {
 }
 
 
-
-// -------------------- Showtimes -------------------
-
-
-const newShowtime = ref({
-  id: undefined,
-  showId: show.value.id,
-  startDateTime: undefined,
-  endDateTime: undefined,
-  attendeeCount: undefined,
-  isActive: undefined,
-});
-
-
-
-
-async function addShowtime() {
-  isAdd.value = false;
-  newShowtime.value.showId = show.value.id; // redundant but just in case
-  delete newShowtime.value.id;
-  console.log("AddShowtime:", newShowtime.value);
-
-  await ShowtimeServices.addShowtime(newShowtime.value)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${newShowtime.value.name} added successfully!`;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-  await getShowtimes();
-}
-
-
-async function getShowtimes() {
-
-  console.log("Show ID used:", show.value.id);
-  user.value = JSON.parse(localStorage.getItem("user"));
-    await ShowtimeServices.getShowtimesForShow(show.value.id)
-      .then((response) => {
-        showtimes.value = response.data;
-      })
-      .catch((error) => {
-        console.log(error);
-        snackbar.value.value = true;
-        snackbar.value.color = "error";
-        snackbar.value.text = error.response.data.message;
-      });
-}
-
-
-
-// opening the dialog
-function openAdd() {
-  newShowtime.value.startDateTime = "";
-  newShowtime.value.endDateTime = "";
-  newShowtime.value.attendeeCount = undefined;
-  newShowtime.value.isActive = false;
-  isAdd.value = true;
-}
-
-function closeAdd() {
-  isAdd.value = false;
-}
-
-
 function closeSnackBar() {
   snackbar.value.value = false;
 }
 
 
-
+function navigateToManagementPage()
+{
+  router.push({ name: "shows" });
+}
 </script>
 
 <template>
   <v-container>
+          <v-icon
+      size="80"
+      icon="mdi-keyboard-backspace"
+       @click="navigateToManagementPage()"
+      />
     <v-row align="center">
       <v-col cols="10"
         ><v-card-title class="pl-0 text-h4 font-weight-bold"

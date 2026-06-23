@@ -92,7 +92,7 @@ async function addPayment() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Payment #${newPayment.value.id} added successfully!`;
+      snackbar.value.text = `Payment with ID ${newPayment.value.id} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -113,7 +113,7 @@ async function editPayment() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newPayment.value.id} editted successfully!`; 
+      snackbar.value.text = `Payment with ID ${newPayment.value.id} editted successfully!`; 
     })
     .catch((error) => {
       console.log(error);
@@ -157,7 +157,7 @@ async function deleteBooking() { // still on Booking functions
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Booking deleted successfully!`;
+      snackbar.value.text = `Booking with ID ${booking.value.id} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -177,7 +177,7 @@ async function deletePayment(item) { // still on Booking functions
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Payment deleted successfully!`;
+      snackbar.value.text = `Payment with ID ${item.id} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -222,6 +222,7 @@ function closeSnackBar() {
         </v-col>
         <v-col class="d-flex justify-end">
                  <v-icon 
+              title="Add Payment"
               size="small"
               icon="mdi-plus" class="ml-2" 
               @click="openAdd()">
@@ -271,18 +272,6 @@ function closeSnackBar() {
           </tbody>
       </v-table>
 
-      <!-- id            | int                                                     | NO   | PRI | NULL    | auto_increment |
-| bookingStatus | enum('pending','paid','cancelled','refunded','expired') | NO   |     | pending |                |
-| totalPrice    | decimal(8,2)                                            | NO   |     | 0.00    |                |
-| createdAt     | datetime                                                | NO   |     | NULL    |                |
-| updatedAt     | datetime                                                | NO   |     | NULL    |                |
-| userId   -->
-
-
-
-
-
-
         <!-- how do I make this bold -->
         <h1>Payment</h1>
 
@@ -309,11 +298,13 @@ function closeSnackBar() {
             <td>{{ item.amount }}</td>
             <td>
               <v-icon
+              title="Edit payment"
                 size="small"
                 icon="mdi-pencil"
                 @click="openEdit(item)"
               ></v-icon>
               <v-icon 
+              title="Delete payment"
               size="small"
               icon="mdi-delete" class="ml-2" 
               @click.stop="deletePayment(item)">

@@ -161,7 +161,7 @@ async function deleteTicket() { // still on Ticket functions
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `Ticket deleted successfully!`;
+      snackbar.value.text = `Ticket with ID ${ticket.value.id} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -226,11 +226,7 @@ function closeSnackBar() {
        
         </v-col>
         <v-col class="d-flex justify-end">
-                 <v-icon 
-              size="small"
-              icon="mdi-plus" class="ml-2" 
-              @click="openAdd()">
-            </v-icon>
+      
 
           <v-icon
             v-if="user !== null"
@@ -258,15 +254,16 @@ function closeSnackBar() {
             <th class="text-left">Booking Id</th>
             <th class="text-left">Showtime ID</th>
             <th class="text-left">Seat ID</th>
-            <th class="text-left">Seat Number</th>
+
             <th class="text-left">Status</th>
             <th class="text-left">Type</th>
             <th class="text-left">Price</th>
-        <th class="text-left">Emailed At</th>
-        <th class="text-left">Scanned At</th>
+
             <th class="text-left">Created At</th>
             <th class="text-left">Updated At</th>
-                    <th class="text-left">QR Code</th>
+            <th class="text-left">QR Code</th>
+       
+
     
           </tr>
         </thead>
@@ -280,10 +277,11 @@ function closeSnackBar() {
             <td>{{ ticket.ticketStatus}}</td>
             <td>{{ ticket.ticketType}}</td>
             <td>{{ ticket.ticketPrice}}</td>
-            <td>{{ ticket.emailedAt}}</td>
-            <td>{{ ticket.scannedAt}}</td>
+ 
             <td>{{ ticket.formattedCreatedAt}}</td>
             <td>{{ ticket.formattedUpdatedAt }}</td>
+            <td>{{ ticket.qrCode }}</td>
+
           </tr>
 
           </tbody>
