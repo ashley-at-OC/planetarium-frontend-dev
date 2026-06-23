@@ -81,7 +81,7 @@ const newTicket = ref({
   bookingId: undefined,
   showtimeId: undefined,
   seatId: undefined,
-  qrCode: undefined, 
+  qrCode:  undefined, 
   ticketStatus: undefined,
   ticketType: undefined,
   ticketPrice: undefined, 
@@ -446,7 +446,7 @@ function openAddTicket() { // clears newTicket every time add dialog opens
   newTicket.value.bookingId = undefined,
   newTicket.value.showtimeId = undefined,
   newTicket.value.seatId = undefined,
-  newTicket.value.qrCode = undefined, 
+  newTicket.value.qrCode = Date.now().toString() + Math.random().toString(36).slice(2) // new unique QR code
   newTicket.value.ticketStatus = undefined,
   newTicket.value.ticketType = undefined,
   newTicket.value.ticketPrice = undefined,
@@ -840,7 +840,7 @@ function closeSnackBar() {
             ></v-select>
             
 
-                   <v-text-field
+              <v-text-field
               v-model="newTicket.qrCode"
               label="QR Code"
 
