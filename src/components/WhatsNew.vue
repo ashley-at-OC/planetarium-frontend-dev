@@ -87,6 +87,7 @@ function navigateToSelectedShow(show) { // can't use props here because this isn
   width: 70%;
   height: 10%;
 
+  border-radius: 5%;
 
 }
 
