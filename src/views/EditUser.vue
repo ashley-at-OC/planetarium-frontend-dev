@@ -8,6 +8,7 @@ const router = useRouter();
 const route = useRoute();
 
 const currentUser = ref(null);
+const newPassword = ref(null);
 
 const snackbar = ref({
   value: false,
@@ -20,7 +21,6 @@ const user = ref({
   firstName: "",
   lastName: "",
   email: 0,
-  password: 0,
   role: 0,
 });
 
@@ -45,7 +45,11 @@ async function getUser() {
 async function updateUser() { 
 
   await UserServices.updateUser(user.value) 
-    .then(() => {
+    .then(async () => {
+      // If new password update grab user id and new password to send to backend.
+      if (newPassword.value) {
+        await UserServices.updatePassword(user.value.id, newPassword.value);
+      }
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = `${user.value.firstName} updated successfully!`;
@@ -110,7 +114,8 @@ function navigateToManagementPage()
                 ></v-text-field>
 
                 <v-text-field
-                  v-model.number="user.password"
+                  v-model="newPassword"
+                  type="password"
                   label="Password"
           
                 ></v-text-field>

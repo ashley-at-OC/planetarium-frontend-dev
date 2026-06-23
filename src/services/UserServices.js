@@ -16,7 +16,10 @@ export default {
   addUser(user) {
     return apiClient.post("users/", user);
   },
-
+  updatePassword(id, password) {
+    return apiClient.put("users/" + id + "/password", {password: password,} // Send pass to backend.
+    );
+  },
   updateUser(user) {
     return apiClient.put("users/" + user.id, user);
 
