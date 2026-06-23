@@ -1,10 +1,29 @@
 <script setup>
+import { onMounted } from "vue";
 import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import ShowServices from "../services/ShowServices.js"; 
+import ShowtimeServices from "../services/ShowtimeServices.js"; 
+import TicketServices from "../services/TicketServices.js"; 
+import BookingServices from "../services/BookingServices.js"; 
+import SeatServices from "../services/SeatServices.js"; 
+import PaymentServices from "../services/PaymentServices.js"; 
 
 const route = useRoute();
 const router = useRouter();
 
+//------- global refs
+
+const show = ref(null);
+const showtime = ref(null);
+const tickets = ref([]);
+const booking = ref(null);
+
+
+const adultTicketCount = ref(0);
+const childTicketCount = ref(0);
+
+//------
 const paymentMethod = ref("credit_card");
 const cardName = ref("");
 const cardNumber = ref("");
@@ -13,21 +32,152 @@ const cvv = ref("");
 const email = ref("");
 const agree = ref(false);
 const loading = ref(false);
-
+const total = ref(0);
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
 });
 
+
+// going off Kim's code, just use this for the visual template. Don't need to actually save to database or anything
 const orderSummary = ref({
   showName: route.query.showName || "Planetarium Show",
-  showtime: route.query.showtime || "Today at 7:00 PM",
-  seats: route.query.seats || "A1, A2",
-  adultTickets: Number(route.query.adults || 2),
-  childTickets: Number(route.query.children || 0),
-  ticketPrice: Number(route.query.price || 15),
+  showtime: null, // assign value later due to async/sync issues.
+  seats: route.params.seatNumbers,
+  adultTickets: adultTicketCount,
+  childTickets: childTicketCount, // free
+  ticketPrice: null, // assign value later due to async/sync issues. Also automatically sums everything up somewhere in Kim's code.
 });
+
+const newPayment = ref({
+  id: undefined,
+  bookingId: null, // bookingId should be the same for all tickets
+  paymentStatus: "pending",
+  paymentMethod: paymentMethod,
+  amount: null,
+});
+
+
+
+onMounted(async () => {
+
+  console.log("TICKET IDS FROM SEATMAP:" + route.params.ticketIds);
+  console.log("SEAT NUMBERS FROM SEATMAP" + route.params.seatNumbers );
+
+  await getBooking();
+
+  await getTickets();
+
+  await getShowtime();
+
+  await getShow();
+
+  await countTickets();
+  console.log("Total adult tickets:" + adultTicketCount.value);
+    console.log("Ticket Price:" + tickets.value[0].ticketPrice);
+
+  orderSummary.value.showName = show.value.name;
+  orderSummary.value.showtime = showtime.value.startDateTime;
+  orderSummary.value.ticketPrice = tickets.value[0].ticketPrice; // assign after tickets are retrieved
+  newPayment.value.bookingId = tickets.value[0].bookingId;
+  newPayment.value.amount = total.value;
+});
+
+async function addPayment() { // stole from BookingCardComponent
+  await PaymentServices.addPayment(newPayment.value)
+    .then(() => {
+    
+    console.log("NEW PAYMENT CREATED");
+
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+async function getTickets() 
+{
+ for(var i = 0; i < route.params.ticketIds.length; ++i)
+ {
+     await TicketServices.getTicket(route.params.ticketIds[i])  // actually just getting one at a time through a loop
+    .then((response) => {
+      tickets.value.push(response.data);
+      console.log("pushed in new ticket: "+ tickets.value[i].id);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+ }
+}
+
+
+
+async function getBooking() {
+  await BookingServices.getBooking(route.params.bookingId) // get it through the router rather than props
+    .then((response) => {
+      booking.value = Array.isArray(response.data) ? response.data[0] : response.data; // in case there is an array
+     console.log("got booking: " + booking.value.id);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+
+
+
+async function getShowtime()
+{
+  await ShowtimeServices.getShowtime(tickets.value[0].showtimeId) // all tickets should have the same showtimeId
+    .then((response) => {
+      showtime.value = response.data; 
+     console.log("got showtime: " + showtime.value.id);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+}
+
+
+async function getShow() // if this doesn't appear right away, it's likely because it depends on showtime...
+{
+  await ShowServices.getShow(showtime.value.showId) // all tickets should have the same showtimeId
+    .then((response) => {
+      show.value = response.data;
+     console.log("got show: " + show.value.id);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+
+}
+
+async function countTickets()
+{
+ for(var i = 0; i < tickets.value.length; ++i)
+ {
+
+    if (tickets.value[i].ticketType == "adult")
+    {
+      adultTicketCount.value += 1;
+      console.log("+1 to adult ticket");
+    }
+    
+    else 
+    {
+      childTicketCount.value += 1;
+      console.log("+1 to child ticket");
+    }
+ }
+
+
+
+}
+
+
 
 const subtotal = computed(() => {
   return orderSummary.value.adultTickets * orderSummary.value.ticketPrice;
@@ -37,7 +187,7 @@ const serviceFee = computed(() => {
   return subtotal.value > 0 ? 2.5 : 0;
 });
 
-const total = computed(() => {
+total.value = computed(() => {
   return subtotal.value + serviceFee.value;
 });
 
@@ -49,7 +199,7 @@ function formatCurrency(value) {
   return Number(value).toFixed(2);
 }
 
-function submitPayment() {
+async function submitPayment() { // make async so that "await" can be used
   if (!email.value) {
     showSnack("error", "Please enter an email address for ticket delivery.");
     return;
@@ -71,6 +221,12 @@ function submitPayment() {
     loading.value = false;
     showSnack("success", "Payment submitted. Your QR tickets will be emailed to you.");
   }, 700);
+
+
+
+console.log("New Payment!! " + newPayment.value);
+await addPayment();
+router.push({ name: "confirmation", params: { seatNumbers: route.params.seatNumbers } });
 }
 
 function showSnack(color, text) {
@@ -186,6 +342,7 @@ function goBackToSeats() {
 
           <v-card-text>
             <div class="summary-line">
+      
               <strong>Show</strong>
               <span>{{ orderSummary.showName }}</span>
             </div>
@@ -201,8 +358,16 @@ function goBackToSeats() {
             <v-divider class="my-4"></v-divider>
 
             <div class="summary-line">
+              <div>
               <span>Adult Tickets x {{ orderSummary.adultTickets }}</span>
+              <br>
+              <span>Child Tickets x {{ orderSummary.childTickets }}</span>
+              </div>
+              <div>
               <span>${{ formatCurrency(subtotal) }}</span>
+              <br>
+              <span>$00.00</span>
+              </div>
             </div>
             <div class="summary-line" v-if="orderSummary.childTickets > 0">
               <span>Children Under 8 x {{ orderSummary.childTickets }}</span>
@@ -217,7 +382,7 @@ function goBackToSeats() {
 
             <div class="summary-total">
               <strong>Total</strong>
-              <strong>${{ formatCurrency(total) }}</strong>
+              <strong>${{ formatCurrency(total.value) }}</strong>
             </div>
           </v-card-text>
         </v-card>

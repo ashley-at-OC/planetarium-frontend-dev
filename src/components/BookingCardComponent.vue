@@ -28,6 +28,22 @@ const snackbar = ref({
 onMounted(async () => {
     await getPayments();
     user.value = JSON.parse(localStorage.getItem("user"));
+
+
+  
+ // BOOKINGS
+    // convert DateTime format into more readable date time format (mm:dd, hh:mm)
+      var rawCreatedAt = new Date(booking.value.createdAt);
+      var rawUpdatedAt = new Date(booking.value.updatedAt);
+      var createdAtDate = rawCreatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var updatedAtDate = rawUpdatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var createdAtTime = rawCreatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      var updatedAtTime = rawUpdatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      booking.value.formattedCreatedAt = `${createdAtDate} ${createdAtTime}`; // store back into bookings under formattedTime (you can dynamically add a new property in Vue)
+      booking.value.formattedUpdatedAt = `${updatedAtDate} ${createdAtTime}`; 
+    
+
+
 });
 
 
@@ -248,8 +264,8 @@ function closeSnackBar() {
             <td>{{ booking.userId }}</td>
             <td>{{ booking.bookingStatus }}</td>
             <td>{{ booking.totalPrice}}</td>
-            <td>{{ booking.createdAt}}</td>
-            <td>{{ booking.updatedAt }}</td>
+            <td>{{ booking.formattedCreatedAt}}</td>
+            <td>{{ booking.formattedUpdatedAt }}</td>
           </tr>
 
           </tbody>

@@ -27,6 +27,20 @@ onMounted(async () => {
    console.log("Show ID:", show.value.id);
   getShowtimes();
   user.value = JSON.parse(localStorage.getItem("user"));
+  
+ // SHOW
+    // convert DateTime format into more readable date time format (mm:dd, hh:mm)
+      var rawCreatedAt = new Date(show.value.createdAt);
+      var rawUpdatedAt = new Date(show.value.updatedAt);
+      var createdAtDate = rawCreatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var updatedAtDate = rawUpdatedAt.toLocaleDateString([], { month: "short",  day: "numeric" });
+      var createdAtTime = rawCreatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      var updatedAtTime = rawUpdatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      show.value.formattedCreatedAt = `${createdAtDate} ${createdAtTime}`; // store back into shows under formattedTime (you can dynamically add a new property in Vue)
+      show.value.formattedUpdatedAt = `${updatedAtDate} ${createdAtTime}`; 
+    
+
+      
 });
 
 
@@ -118,6 +132,19 @@ async function getShowtimes() {
     await ShowtimeServices.getShowtimesForShow(show.value.id)
       .then((response) => {
         showtimes.value = response.data;
+      for (let i = 0; i < showtimes.value.length; i++) {
+        var rawStart = new Date(showtimes.value[i].startDateTime);
+        var rawEnd = new Date(showtimes.value[i].endDateTime);
+        var startDate = rawStart.toLocaleDateString([], { month: "short", day: "numeric" });
+        var endDate = rawEnd.toLocaleDateString([], { month: "short", day: "numeric" });
+        var startTime = rawStart.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        var endTime = rawEnd.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+
+        showtimes.value[i].formattedStartDateTime = `${startDate} ${startTime}`;
+        showtimes.value[i].formattedEndDateTime = `${endDate} ${endTime}`;
+      }
+
+
       })
       .catch((error) => {
         console.log(error);
@@ -242,8 +269,8 @@ function closeSnackBar() {
             <td>{{ show.id }}</td>
             <td>{{ show.name }}</td>
             <td>{{ show.price}}</td>
-            <td>{{ show.createdAt}}</td>
-            <td>{{ show.updatedAt }}</td>
+            <td>{{ show.formattedCreatedAt}}</td>
+            <td>{{ show.formattedUpdatedAt }}</td>
             <td>{{ show.description }}</td>
           </tr>
 
@@ -275,8 +302,8 @@ function closeSnackBar() {
           <tr v-for="item in showtimes" :key="item.id">
             <td>{{ item.id }}</td>
             <td>{{ item.showId }}</td>
-            <td>{{ item.startDateTime }}</td>
-            <td>{{ item.endDateTime }}</td>
+            <td>{{ item.formattedStartDateTime }}</td>
+            <td>{{ item.formattedEndDateTime }}</td>
             <td>{{ item.attendeeCount }}</td>
             <td>{{ item.isActive }}</td>
             <td>

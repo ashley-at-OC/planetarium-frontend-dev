@@ -13,6 +13,9 @@ import UserCardComponent from "../components/UserCardComponent.vue";
 import BookingCardComponent from "../components/BookingCardComponent.vue";
 import TicketCardComponent from "../components/TicketCardComponent.vue";
 
+
+
+
 // Tab
 const activeTab = ref('0');
 
@@ -119,6 +122,8 @@ onMounted(async () => {
   for (let i = 0; i < users.value.length; i++) {
       registeredUsers.value.push(users.value[i].id);
     }
+
+
   console.log(registeredUsers);
 
 
@@ -156,7 +161,12 @@ async function getShows() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-}
+
+
+    
+    }
+
+
 
 
 
@@ -172,7 +182,14 @@ registeredShowtimes.value = []; // clear out previously selected show
           registeredShowtimes.value.push(showtimes.value[i]); // push in the entire object
         }
       console.log(registeredShowtimes.value);
-      
+    
+      // SHOWTIME 
+  for (let i = 0; i < registeredShowtimes.value.length; i++) {
+        const rawStart = new Date(registeredShowtimes.value[i].startDateTime);
+        const startDate = rawStart.toLocaleDateString([], { month: "short", day: "numeric" });
+        const startTime = rawStart.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        registeredShowtimes.value[i].formattedStartDateTime = `${startDate} ${startTime}`;
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -781,7 +798,7 @@ function closeSnackBar() {
               v-model="newTicket.showtimeId" 
               label="Showtime"
               :items="registeredShowtimes"
-              item-title="startDateTime"
+              item-title="formattedStartDateTime"
                item-value="id"
                @update:modelValue="onChangeShowtimeSelection" 
             ></v-select>
@@ -816,13 +833,6 @@ function closeSnackBar() {
 
             ></v-text-field>
 
-
-       
-
-            
-
-
-                  
             <v-select
               v-model="newTicket.ticketStatus"
               label="Status"

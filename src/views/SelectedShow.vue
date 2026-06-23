@@ -10,9 +10,10 @@ const router = useRouter();
 
 
 // Stash the selected show's id so SeatMap.vue can fetch its price from the backend
-function goToSeatMap() {
-  localStorage.setItem("selectedShowId", show.value.id);
-  router.push({ name: "seatMap" });
+function goToSeatMap(selectedShowId, selectedShowtimeId) {
+  // localStorage.setItem("selectedShowId", show.value.id);  
+router.push({name: "seatMap",params: {showId: selectedShowId, showtimeId: selectedShowtimeId}
+});
 }
 
 
@@ -45,7 +46,7 @@ onMounted(async () => {
 
 
 async function getShow() {
-  await ShowServices.getShow(route.params.id)
+  await ShowServices.getShow(route.params.id) // catch from Carousel's route.push() 
     .then((response) => {
       show.value = Array.isArray(response.data) ? response.data[0] : response.data; // in case there is an array
     })
@@ -108,7 +109,9 @@ async function getShowtimes() {
 <!-- <button id="getTicketsButton" @click="goToSeatMap"> View show </button> -->
   
 <div id="buttonList"> 
-  <button id="showtimeButton" v-for="showtime in showtimes" :key="showtime.id" @click="goToSeatMap"> 
+
+
+  <button id="showtimeButton" v-for="showtime in showtimes" :key="showtime.id" @click="goToSeatMap(show.id, showtime.id)"> 
   <h3> {{ showtime.formattedTime }}</h3>
 </button>
 </div>
