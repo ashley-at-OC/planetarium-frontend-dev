@@ -226,6 +226,7 @@ async function submitPayment() { // make async so that "await" can be used
 
 console.log("New Payment!! " + newPayment.value);
 await addPayment();
+await BookingServices.sendConfirmationEmail(newPayment.value.bookingId, email.value);
 router.push({ name: "confirmation", params: { seatNumbers: route.params.seatNumbers } });
 }
 
